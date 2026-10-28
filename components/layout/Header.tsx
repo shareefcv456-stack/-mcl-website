@@ -31,7 +31,7 @@ function NavItems({ pathname, variant, onNavigate }: { pathname: string | null; 
           aria-current={current ? "page" : undefined}
           className={cn(
             variant === "bar"
-              ? "block rounded-full px-3.5 py-2 text-[0.9375rem] font-medium text-ink hover:bg-soft hover:text-navy"
+              ? "block rounded-full px-3.5 py-2 text-[0.9375rem] font-medium text-ink transition-colors duration-200 ease-smooth hover:bg-soft hover:text-navy"
               : "flex items-center justify-between border-b border-line px-1 py-3.5 text-[1.0625rem] font-medium text-navy",
             current && (variant === "bar" ? "bg-brand-50 text-brand hover:bg-brand-50 hover:text-brand" : "text-brand"),
           )}
@@ -75,7 +75,7 @@ export function Header() {
           <Nav variant="bar" />
         </ul>
         <div className="ml-auto flex shrink-0 items-center gap-2 min-[1081px]:ml-0">
-          <Link href="/tracking" className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[0.9375rem] font-semibold text-navy hover:bg-soft hover:text-navy min-[1081px]:inline-flex">
+          <Link href="/tracking" className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-[0.9375rem] font-semibold text-navy transition-colors duration-200 ease-smooth hover:bg-soft hover:text-navy min-[1081px]:inline-flex">
             <Package aria-hidden className="size-5" />
             Track
           </Link>
@@ -107,7 +107,7 @@ export function Header() {
               <X aria-hidden className="size-5" />
             </button>
           </div>
-          <ul className="m-0 list-none p-0">
+          <ul className="drawer-items m-0 list-none p-0">
             <Nav variant="drawer" onNavigate={close} />
           </ul>
           <div className="mt-auto grid gap-2.5">

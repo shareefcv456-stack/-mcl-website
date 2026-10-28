@@ -70,12 +70,12 @@ test.describe("tracking", () => {
     await page.goto("/");
     const input = page.getByLabel("Shipment / AWB tracking number");
     await input.fill("ab");
-    await page.getByRole("button", { name: "Track Order" }).click();
+    await page.getByRole("button", { name: "Track Order", exact: true }).click();
     await expect(page.getByText("Use letters, numbers or hyphens (at least 3 characters).")).toBeVisible();
     await expect(input).toHaveAttribute("aria-invalid", "true");
 
     await input.fill("MCL-12345");
-    await page.getByRole("button", { name: "Track Order" }).click();
+    await page.getByRole("button", { name: "Track Order", exact: true }).click();
     await expect(page).toHaveURL(/\/tracking\?tracking_id=MCL-12345$/);
     await expect(page.getByText("Tracking number received: MCL-12345")).toBeVisible();
     await expect(page.getByText(/isn't connected to this website yet/)).toBeVisible();

@@ -7,6 +7,7 @@ import { WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { IconTile, cardClass, cardHoverClass } from "@/components/ui/Section";
 import { CANADA_NOTICE, OFFICES, SITE } from "@/lib/content/site";
 import { pageMetadata } from "@/lib/seo";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = pageMetadata({
   title: "Contact Us & Support",
@@ -41,7 +42,7 @@ export default function ContactPage() {
               </a>
             ))}
           </div>
-          <div className="grid items-start gap-[clamp(32px,5vw,80px)] min-[861px]:grid-cols-2">
+          <Reveal variant="stagger" className="grid items-start gap-[clamp(32px,5vw,80px)] min-[861px]:grid-cols-2">
             <div>
               <span className="eyebrow">Send us email</span>
               <h2 className="mb-4">Feel free to write</h2>
@@ -73,7 +74,7 @@ export default function ContactPage() {
                 </div>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
       <FaqSection eyebrow="Support">

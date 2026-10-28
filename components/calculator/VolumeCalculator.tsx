@@ -48,13 +48,13 @@ export function VolumeCalculator() {
       <div
         aria-live="polite"
         className={cn(
-          "flex items-center justify-between rounded-2xl border border-dashed px-[18px] py-4",
+          "flex items-center justify-between rounded-2xl border border-dashed px-[18px] py-4 transition-colors duration-300 ease-smooth",
           weight === null ? "border-[#cfd4e2] bg-soft" : "border-transparent bg-success-50",
         )}
       >
         <span className="text-[0.9375rem] text-muted">Volumetric Weight</span>
         <output htmlFor="calc-length calc-width calc-height" className={cn("font-display text-[1.75rem] leading-none font-semibold", weight === null ? "text-navy" : "text-success")}>
-          {weight === null ? "—" : formatKg(weight)}
+          <span key={weight ?? "empty"} className={cn("inline-block", weight !== null && "animate-result-in")}>{weight === null ? "—" : formatKg(weight)}</span>
         </output>
       </div>
       <p className="m-0 text-[0.8125rem] text-muted">

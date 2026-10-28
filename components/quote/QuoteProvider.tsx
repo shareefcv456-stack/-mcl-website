@@ -39,7 +39,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
         aria-describedby="quote-desc"
         // Clicking the backdrop (the dialog element itself, outside the panel) closes it.
         onClick={(e) => e.target === e.currentTarget && e.currentTarget.close()}
-        className="m-auto max-h-[calc(100dvh-32px)] w-[min(640px,calc(100vw-32px))] rounded-3xl p-0 text-ink shadow-float"
+        className="dialog-pop m-auto max-h-[calc(100dvh-32px)] w-[min(640px,calc(100vw-32px))] rounded-3xl p-0 text-ink shadow-float"
       >
         <div className="flex items-start justify-between gap-4 px-6 pt-6">
           <div>

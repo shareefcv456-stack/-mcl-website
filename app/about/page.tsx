@@ -4,6 +4,7 @@ import { Benefits, StatImage, WhyChooseUs } from "@/components/home/Sections";
 import { IconTile, SectionHeading, cardClass } from "@/components/ui/Section";
 import { VALUES } from "@/lib/content/home";
 import { pageMetadata } from "@/lib/seo";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = pageMetadata({
   title: "About Us",
@@ -17,9 +18,9 @@ export default function AboutPage() {
     <>
       <PageBanner title="About Us" lead="Meem Continental Logistics (MCL) — your trusted partner in global logistics." image="/images/container-ship.jpg" />
 
-      <section className="section-y">
+      <section className="section-y overflow-x-clip">
         <div className="container-site grid items-center gap-[clamp(32px,5vw,80px)] min-[861px]:grid-cols-2">
-          <div>
+          <Reveal variant="stagger">
             <span className="eyebrow">Who we are</span>
             <h2 className="mb-4">Meem Continental Logistics (MCL)</h2>
             <p>
@@ -34,7 +35,7 @@ export default function AboutPage() {
               customized solutions.
             </p>
             <Benefits />
-          </div>
+          </Reveal>
           <StatImage src="/images/5.jpg" alt="MCL cargo operations" />
         </div>
       </section>
@@ -42,14 +43,14 @@ export default function AboutPage() {
       <section aria-labelledby="values-title" className="section-y bg-soft">
         <div className="container-site">
           <SectionHeading id="values-title" center eyebrow="What drives us" title="Our Values" />
-          <ul className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 p-0">
+          <Reveal as="ul" variant="stagger" className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 p-0">
             {VALUES.map((v) => (
               <li key={v.title} className={`${cardClass} text-center`}>
                 <IconTile icon={v.icon} className="mx-auto mb-4" />
                 <h3 className="m-0 text-xl">{v.title}</h3>
               </li>
             ))}
-          </ul>
+          </Reveal>
         </div>
       </section>
 

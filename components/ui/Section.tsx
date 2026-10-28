@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { Reveal } from "@/components/ui/Reveal";
 
 export function SectionHeading({
   eyebrow,
@@ -20,14 +21,14 @@ export function SectionHeading({
   as?: "h1" | "h2";
 }) {
   return (
-    <div className={cn("mb-12 flex flex-wrap items-end gap-6", center ? "justify-center text-center" : "justify-between")}>
+    <Reveal className={cn("mb-12 flex flex-wrap items-end gap-6", center ? "justify-center text-center" : "justify-between")}>
       <div className={cn("max-w-[640px]", center && "mx-auto")}>
         {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-        <Tag id={id} className="mb-3">{title}</Tag>
+        <Tag id={id} className="reveal-heading mb-3">{title}</Tag>
         {intro && <p className="m-0 text-muted">{intro}</p>}
       </div>
       {action}
-    </div>
+    </Reveal>
   );
 }
 
@@ -47,8 +48,8 @@ export function IconTile({ icon: Icon, tone = "brand", className }: { icon: Luci
 /** Icon + title + text row used for benefits. */
 export function Feature({ icon, title, text, tone }: { icon: LucideIcon; title: string; text: string; tone?: "brand" | "accent" }) {
   return (
-    <div className="flex gap-4">
-      <IconTile icon={icon} tone={tone} />
+    <div className="group flex gap-4">
+      <IconTile icon={icon} tone={tone} className="transition-transform duration-300 ease-smooth group-hover:-translate-y-0.5" />
       <div>
         <h3 className="mb-1.5 text-xl">{title}</h3>
         <p className="m-0 text-[0.9375rem] text-muted">{text}</p>
@@ -58,4 +59,4 @@ export function Feature({ icon, title, text, tone }: { icon: LucideIcon; title: 
 }
 
 export const cardClass = "rounded-3xl border border-line bg-white p-6";
-export const cardHoverClass = "transition duration-200 hover:-translate-y-[3px] hover:border-transparent hover:shadow-card";
+export const cardHoverClass = "transition duration-200 ease-smooth hover:-translate-y-[3px] hover:border-transparent hover:shadow-card";

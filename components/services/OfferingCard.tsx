@@ -15,7 +15,7 @@ export function OfferingCard({ offering }: { offering: ServiceOffering }) {
         <p className="m-0 text-[0.9375rem] text-muted">{offering.summary}</p>
         {offering.description && (
           <details className="group">
-            <summary className="inline-flex cursor-pointer list-none text-[0.9375rem] font-semibold text-brand [&::-webkit-details-marker]:hidden">
+            <summary className="-my-2.5 inline-flex cursor-pointer list-none py-2.5 text-[0.9375rem] font-semibold text-brand [&::-webkit-details-marker]:hidden">
               <span className="group-open:hidden">Read more</span>
               <span className="hidden group-open:inline">Show less</span>
             </summary>

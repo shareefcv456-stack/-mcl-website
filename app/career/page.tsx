@@ -4,6 +4,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { SectionHeading, cardClass, cardHoverClass } from "@/components/ui/Section";
 import { CAREERS_INTRO, JOBS, jobHref } from "@/lib/content/careers";
 import { pageMetadata } from "@/lib/seo";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = pageMetadata({
   title: "Careers",
@@ -24,7 +25,7 @@ export default function CareersPage() {
             title="Find the perfect jobs"
             action={<span className="text-muted">{JOBS.length} {JOBS.length === 1 ? "opening" : "openings"}</span>}
           />
-          <ul className="m-0 grid list-none gap-4 p-0">
+          <Reveal as="ul" variant="stagger" className="m-0 grid list-none gap-4 p-0">
             {JOBS.map((job) => (
               <li key={job.slug} className={`${cardClass} ${cardHoverClass} flex flex-wrap items-center justify-between gap-4`}>
                 <div>
@@ -38,7 +39,7 @@ export default function CareersPage() {
                 <ButtonLink href={jobHref(job.slug)} arrow aria-label={`View details: ${job.title}`}>View Details</ButtonLink>
               </li>
             ))}
-          </ul>
+          </Reveal>
         </div>
       </section>
     </>

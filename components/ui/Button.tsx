@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils/cn";
 type Variant = "primary" | "white" | "ghost" | "ghost-light";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "border-transparent bg-brand text-white hover:bg-brand-700 hover:text-white",
-  white: "border-transparent bg-white text-navy hover:bg-[#eef0f7] hover:text-navy",
+  primary: "border-transparent bg-brand text-white hover:bg-brand-700 hover:text-white hover:shadow-[0_10px_28px_-8px_rgb(44_53_212/0.6)]",
+  white: "border-transparent bg-white text-navy hover:bg-[#eef0f7] hover:text-navy hover:shadow-[0_10px_30px_-8px_rgb(170_179_255/0.75)]",
   ghost: "border-line bg-transparent text-navy hover:bg-soft hover:text-navy",
   "ghost-light": "border-white/35 bg-white/10 text-white backdrop-blur-sm hover:bg-white/20 hover:text-white",
 };
@@ -82,7 +82,7 @@ export function ArrowLabel({ children, className }: { children: ReactNode; class
   return (
     <span className={cn("inline-flex items-center gap-1.5 text-[0.9375rem] font-semibold", className)}>
       {children}
-      <ArrowRight aria-hidden className="size-4 transition-transform group-hover:translate-x-[3px]" />
+      <ArrowRight aria-hidden className="size-4 transition-transform duration-300 ease-smooth group-hover:translate-x-[3px]" />
     </span>
   );
 }

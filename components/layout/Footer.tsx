@@ -7,7 +7,7 @@ import { NewsletterForm } from "@/components/forms/NewsletterForm";
 import { FOOTER_EXPLORE, OFFICES, SITE } from "@/lib/content/site";
 import { SERVICES, serviceHref } from "@/lib/content/services";
 
-const linkClass = "text-[#dfe4f2] hover:text-white";
+const linkClass = "text-[#dfe4f2] transition-colors duration-200 ease-smooth hover:text-white";
 const headingClass = "mb-4 font-sans text-[0.9375rem] tracking-[0.06em] text-white uppercase";
 
 export function Footer() {
@@ -33,7 +33,7 @@ export function Footer() {
                 </a>
               </li>
               <li>
-                <a href={`mailto:${SITE.email}`} className={`flex items-center gap-3 font-semibold break-all ${linkClass}`}>
+                <a href={`mailto:${SITE.email}`} className={`-my-2 flex items-center gap-3 py-2 font-semibold break-all ${linkClass}`}>
                   <Mail aria-hidden className="size-5 shrink-0" />{SITE.email}
                 </a>
               </li>
@@ -80,7 +80,7 @@ export function Footer() {
               { href: SITE.whatsapp, label: "Chat with MCL on WhatsApp", icon: <WhatsAppIcon className="size-5" /> },
               { href: `tel:${SITE.phone.tel}`, label: "Call MCL", icon: <Phone aria-hidden className="size-5" /> },
             ].map((s) => (
-              <a key={s.href} href={s.href} aria-label={s.label} rel="noopener" className="grid size-10 place-items-center rounded-full bg-white/10 text-[#dfe4f2] hover:bg-brand hover:text-white">
+              <a key={s.href} href={s.href} aria-label={s.label} rel="noopener" className="grid size-10 place-items-center rounded-full bg-white/10 text-[#dfe4f2] transition-[background-color,color,translate] duration-200 ease-smooth hover:-translate-y-0.5 hover:bg-brand hover:text-white">
                 {s.icon}
               </a>
             ))}
@@ -94,7 +94,7 @@ export function Footer() {
 export function WhatsAppButton() {
   return (
     <a href={SITE.whatsapp} aria-label="Chat with MCL on WhatsApp" rel="noopener"
-      className="fixed right-5 bottom-5 z-40 grid size-14 place-items-center rounded-full bg-[#1fa855] text-white shadow-float hover:bg-[#178a45] hover:text-white">
+      className="fixed right-5 bottom-5 z-40 grid size-14 place-items-center rounded-full bg-[#1fa855] text-white shadow-float transition-[background-color,translate] duration-200 ease-smooth hover:-translate-y-0.5 hover:bg-[#178a45] hover:text-white">
       <WhatsAppIcon className="size-[26px]" />
     </a>
   );

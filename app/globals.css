@@ -35,9 +35,256 @@
   --shadow-card: 0 10px 30px -12px rgb(11 21 51 / 0.18);
   --shadow-float: 0 24px 60px -20px rgb(11 21 51 / 0.35);
 
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-enter: reveal-up 0.8s var(--ease-smooth) both;
+
+  --animate-result-in: result-in 0.35s var(--ease-smooth);
+  @keyframes result-in {
+    from { opacity: 0; transform: translateY(6px); }
+  }
+
   --animate-slide-in: slide-in 0.25s ease;
   @keyframes slide-in {
     from { transform: translateX(30px); opacity: 0; }
+  }
+}
+
+/* Scroll reveal, driven by components/ui/Reveal.tsx. Every variant animates only opacity and transform/clip-path.
+   "up" (default) fades and rises 16px; "fade" only fades; "stagger" reveals each direct child as it enters, rows
+   staggered by --reveal-delay; "image" wipes the picture in inside a still frame, then its [data-reveal-part]
+   badge; "orbit" settles the Working Process ring, picture and badges in sequence. */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(16px); }
+}
+@keyframes reveal-fade {
+  from { opacity: 0; }
+}
+@keyframes reveal-image {
+  from { opacity: 0; transform: scale(1.06); }
+}
+@keyframes reveal-wipe {
+  from { clip-path: inset(0 100% 0 0); transform: scale(1.08); }
+}
+@keyframes reveal-scale {
+  from { opacity: 0; transform: scale(0.94); }
+}
+@keyframes reveal-ring {
+  from { opacity: 0; transform: rotate(-24deg); }
+}
+@keyframes reveal-pop {
+  from { opacity: 0; transform: scale(0.6); }
+}
+@keyframes reveal-left {
+  from { opacity: 0; transform: translateX(-32px); }
+}
+@keyframes reveal-right {
+  from { opacity: 0; transform: translateX(32px); }
+}
+@keyframes hero-settle {
+  from { opacity: 0.55; transform: scale(1.04); }
+}
+@keyframes hero-drift {
+  to { translate: 0 6%; }
+}
+@keyframes orbit-drift {
+  to { rotate: 360deg; }
+}
+@keyframes reveal-clip {
+  from { clip-path: inset(100% 0 0 0); transform: scale(1.12); }
+}
+@keyframes heading-rise {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(0.5em); }
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  [data-reveal-state="pending"] {
+    opacity: 0;
+  }
+  [data-reveal-state="in"] {
+    animation: reveal-up 0.7s var(--ease-smooth) var(--reveal-delay, 0ms) both;
+  }
+  [data-reveal="fade"][data-reveal-state="in"] {
+    animation-name: reveal-fade;
+    animation-duration: 0.9s;
+  }
+  [data-reveal="stagger"] > [data-reveal-state="in"] img {
+    animation: reveal-image 1.1s var(--ease-smooth) var(--reveal-delay, 0ms) backwards;
+  }
+  /* Grids pick their image entrance with data-image: "clip" rises out of a mask (service and blog cards), "wipe"
+     is a wider cinematic sweep with the caption following (portfolio). Without it, images settle from a zoom. */
+  [data-reveal="stagger"][data-image="clip"] > [data-reveal-state="in"] img {
+    animation: reveal-clip 1s var(--ease-smooth) var(--reveal-delay, 0ms) backwards;
+  }
+  [data-reveal="stagger"][data-image="wipe"] > [data-reveal-state="in"] img {
+    animation: reveal-wipe 1.3s var(--ease-smooth) var(--reveal-delay, 0ms) backwards;
+  }
+  [data-reveal="stagger"][data-image="wipe"] > [data-reveal-state="in"] figcaption {
+    animation: reveal-up 0.7s var(--ease-smooth) calc(var(--reveal-delay, 0ms) + 0.45s) backwards;
+  }
+  /* Card copy follows its image in on the "clip" grids (services, blogs). */
+  [data-reveal="stagger"][data-image="clip"] > [data-reveal-state="in"] :is(time, h3, p) {
+    animation: reveal-up 0.6s var(--ease-smooth) calc(var(--reveal-delay, 0ms) + 0.3s) backwards;
+  }
+  /* Direction per section: About splits (image from the left, copy from the right); categories alternate
+     left, up and right across each row. Their sections clip horizontal overflow so nothing can scroll sideways. */
+  [data-reveal="image"][data-motion="from-left"][data-reveal-state="in"] {
+    animation: reveal-left 0.9s var(--ease-smooth) both;
+  }
+  [data-reveal="stagger"][data-motion="from-right"] > [data-reveal-state="in"] {
+    animation-name: reveal-right;
+  }
+  [data-reveal="stagger"][data-motion="alternate"] > [data-reveal-state="in"]:nth-child(3n + 1) {
+    animation-name: reveal-left;
+  }
+  [data-reveal="stagger"][data-motion="alternate"] > [data-reveal-state="in"]:nth-child(3n) {
+    animation-name: reveal-right;
+  }
+
+  /* Hero: words rise in turn, then the rest follows (animate-enter); the backdrop settles on load and, where
+     scroll-driven animations exist, drifts a few percent slower than the page. At rest it is exactly in place. */
+  .hero-word {
+    animation: heading-rise 0.9s var(--ease-smooth) calc(var(--i, 0) * 70ms + 80ms) both;
+  }
+  .hero-backdrop {
+    animation: hero-settle 1.8s var(--ease-smooth) both;
+  }
+  @supports (animation-timeline: scroll()) {
+    .hero-backdrop {
+      animation: hero-settle 1.8s var(--ease-smooth) both, hero-drift linear both;
+      animation-timeline: auto, scroll(root);
+      animation-range: normal, 0 100vh;
+    }
+  }
+
+  /* Working Process: the dashed ring drifts very slowly around its own centre. */
+  .orbit-drift {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: orbit-drift 240s linear infinite;
+  }
+
+  /* Section headings rise out of a line mask a beat after their block appears. */
+  [data-reveal-state="in"] .reveal-heading {
+    animation: heading-rise 0.9s var(--ease-smooth) 0.1s backwards;
+  }
+  /* Menu drawer links follow the drawer in, one after another. */
+  dialog[open] .drawer-items > li {
+    animation: reveal-up 0.5s var(--ease-smooth) backwards;
+  }
+  dialog[open] .drawer-items > li:nth-child(2) { animation-delay: 40ms; }
+  dialog[open] .drawer-items > li:nth-child(3) { animation-delay: 80ms; }
+  dialog[open] .drawer-items > li:nth-child(4) { animation-delay: 120ms; }
+  dialog[open] .drawer-items > li:nth-child(5) { animation-delay: 160ms; }
+  dialog[open] .drawer-items > li:nth-child(6) { animation-delay: 200ms; }
+  dialog[open] .drawer-items > li:nth-child(n + 7) { animation-delay: 240ms; }
+
+  /* The frame of "image" and "orbit" stays put; only its parts animate. */
+  [data-reveal="image"][data-reveal-state],
+  [data-reveal="orbit"][data-reveal-state] {
+    opacity: 1;
+    animation: none;
+  }
+  [data-reveal="image"][data-reveal-state="pending"] :is(img, [data-reveal-part]),
+  [data-reveal="orbit"][data-reveal-state="pending"] > :not(dialog) {
+    opacity: 0;
+  }
+  [data-reveal="image"][data-reveal-state="in"] img {
+    animation: reveal-wipe 1.2s var(--ease-smooth) backwards;
+  }
+  [data-reveal="image"][data-reveal-state="in"] [data-reveal-part] {
+    animation: reveal-up 0.7s var(--ease-smooth) 0.6s backwards;
+  }
+  [data-reveal="orbit"][data-reveal-state="in"] > svg {
+    animation: reveal-ring 1.6s var(--ease-smooth) backwards;
+  }
+  [data-reveal="orbit"][data-reveal-state="in"] > div {
+    animation: reveal-scale 1s var(--ease-smooth) 0.1s backwards;
+  }
+  [data-reveal="orbit"][data-reveal-state="in"] > button {
+    animation: reveal-pop 0.6s var(--ease-smooth) backwards;
+  }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(1) { animation-delay: 0.45s; }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(2) { animation-delay: 0.52s; }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(3) { animation-delay: 0.59s; }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(4) { animation-delay: 0.66s; }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(5) { animation-delay: 0.73s; }
+  [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(6) { animation-delay: 0.8s; }
+
+  /* FAQ answers open and close smoothly where the browser supports animating <details>. */
+  :root {
+    interpolate-size: allow-keywords;
+  }
+  details::details-content {
+    height: 0;
+    overflow: clip;
+    transition: height 0.35s var(--ease-smooth), content-visibility 0.35s allow-discrete;
+  }
+  details[open]::details-content {
+    height: auto;
+  }
+}
+
+/* Hero headline words are inline blocks so each can rise on its own; wrapping is unchanged. */
+.hero-word {
+  display: inline-block;
+}
+
+/* 3D flip card (components/ui/FlipCard.tsx). Both faces share one grid cell, so the card keeps its height. */
+.flip {
+  perspective: 1400px;
+}
+.flip-inner {
+  display: grid;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.75s var(--ease-smooth);
+}
+.flip-face {
+  position: relative;
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip[data-axis="y"] .flip-back { transform: rotateY(180deg); }
+.flip[data-axis="x"] .flip-back { transform: rotateX(180deg); }
+.flip[data-axis="y"][data-flipped="true"] > .flip-inner { transform: rotateY(180deg); }
+.flip[data-axis="x"][data-flipped="true"] > .flip-inner { transform: rotateX(180deg); }
+
+/* Working Process: a step and its orbit badge light up together when either is hovered or focused, or while
+   that step's popup is open. */
+:is(
+  section:has([data-step="1"]:is(:hover, :focus-visible), dialog[open][data-step="1"]) [data-step="1"],
+  section:has([data-step="2"]:is(:hover, :focus-visible), dialog[open][data-step="2"]) [data-step="2"],
+  section:has([data-step="3"]:is(:hover, :focus-visible), dialog[open][data-step="3"]) [data-step="3"],
+  section:has([data-step="4"]:is(:hover, :focus-visible), dialog[open][data-step="4"]) [data-step="4"],
+  section:has([data-step="5"]:is(:hover, :focus-visible), dialog[open][data-step="5"]) [data-step="5"],
+  section:has([data-step="6"]:is(:hover, :focus-visible), dialog[open][data-step="6"]) [data-step="6"]
+) {
+  &:is(button) {
+    background-color: #13306a;
+    --tw-ring-color: rgb(103 232 249 / 0.75);
+    box-shadow: 0 0 0 1px rgb(103 232 249 / 0.75), 0 0 18px rgb(103 232 249 / 0.35);
+  }
+  &:is(li) h3 {
+    color: #a5f3fc;
+  }
+}
+li[data-step] h3 {
+  transition: color 0.2s var(--ease-smooth);
+}
+
+/* Fade-and-scale entrance and exit for modal dialogs (the menu drawer keeps its own slide). */
+@utility dialog-pop {
+  opacity: 0;
+  scale: 0.96;
+  transition: opacity 0.25s var(--ease-smooth), scale 0.25s var(--ease-smooth), overlay 0.25s allow-discrete, display 0.25s allow-discrete;
+  &[open] {
+    opacity: 1;
+    scale: 1;
+    @starting-style {
+      opacity: 0;
+      scale: 0.96;
+    }
   }
 }
 
@@ -97,6 +344,22 @@
   dialog::backdrop {
     background: rgb(11 21 51 / 0.6);
     backdrop-filter: blur(3px);
+    transition: opacity 0.25s var(--ease-smooth), overlay 0.25s allow-discrete, display 0.25s allow-discrete;
+  }
+  dialog:not([open])::backdrop {
+    opacity: 0;
+  }
+  @starting-style {
+    dialog[open]::backdrop {
+      opacity: 0;
+    }
+  }
+  /* Keep the page behind an open dialog from scrolling; the stable gutter stops the layout jumping. */
+  html {
+    scrollbar-gutter: stable;
+  }
+  html:has(dialog[open]) {
+    overflow: hidden;
   }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
