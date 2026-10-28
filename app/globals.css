@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/* MCL design tokens — same values as the static redesign (assets/css/site.css). */
+@theme {
+  --color-brand: #2c35d4; /* sampled from the MCL logo */
+  --color-brand-700: #2229b0;
+  --color-brand-100: #dfe2ff;
+  --color-brand-50: #eef0ff;
+  --color-accent: #6a38d9; /* purple, used sparingly */
+  --color-accent-50: #f2edff;
+  --color-navy: #0b1533;
+  --color-navy-800: #13204a;
+  --color-ink: #2a3350;
+  --color-muted: #5b6480;
+  --color-line: #e3e6ef;
+  --color-soft: #f5f7fb;
+  --color-on-dark: #c9d0e4;
+  --color-on-dark-muted: #aab3cc;
+  --color-on-dark-accent: #aab3ff;
+  --color-success: #12805c;
+  --color-success-50: #e7f6ef;
+  --color-danger: #c42b2b;
+  --color-danger-50: #fdeeee;
+  --color-warn: #8a5a00;
+  --color-warn-50: #fff6e5;
+
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+
+  --text-h1: clamp(2.25rem, 1.5rem + 3.4vw, 4.5rem);
+  --text-h2: clamp(1.75rem, 1.35rem + 1.6vw, 2.75rem);
+  --text-h3: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  --text-banner: clamp(2rem, 1.4rem + 2.6vw, 3.5rem);
+
+  --shadow-card: 0 10px 30px -12px rgb(11 21 51 / 0.18);
+  --shadow-float: 0 24px 60px -20px rgb(11 21 51 / 0.35);
+
+  --animate-slide-in: slide-in 0.25s ease;
+  @keyframes slide-in {
+    from { transform: translateX(30px); opacity: 0; }
+  }
+}
+
+/* Layout primitives */
+@utility container-site {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 4vw, 40px);
+  max-width: calc(1200px + 2 * clamp(16px, 4vw, 40px));
+}
+@utility section-y {
+  padding-block: clamp(64px, 5vw + 40px, 112px);
+}
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-brand);
+  &::before {
+    content: "";
+    width: 18px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display font-semibold text-navy;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  h1 { font-size: var(--text-h1); letter-spacing: -0.035em; }
+  h2 { font-size: var(--text-h2); letter-spacing: -0.03em; }
+  h3 { font-size: var(--text-h3); }
+  a { @apply text-brand transition-colors hover:text-brand-700; }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+  dialog::backdrop {
+    background: rgb(11 21 51 / 0.6);
+    backdrop-filter: blur(3px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation: none !important;
+      transition: none !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
