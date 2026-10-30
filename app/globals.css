@@ -65,6 +65,7 @@
 }
 @keyframes reveal-wipe {
   from { clip-path: inset(0 100% 0 0); transform: scale(1.08); }
+  to { clip-path: inset(0); }
 }
 @keyframes reveal-scale {
   from { opacity: 0; transform: scale(0.94); }
@@ -78,23 +79,83 @@
 @keyframes reveal-left {
   from { opacity: 0; transform: translateX(-32px); }
 }
-@keyframes reveal-right {
-  from { opacity: 0; transform: translateX(32px); }
-}
 @keyframes hero-settle {
   from { opacity: 0.55; transform: scale(1.04); }
 }
 @keyframes hero-drift {
   to { translate: 0 6%; }
 }
+/* Hero ambience: a slow sideways camera drift at a constant slight enlargement (never a zoom in and out), swell layers
+   sliding across the foreground water, a glint gliding over it and the horizon mist breathing. */
+@keyframes camera-drift {
+  from { transform: scale(1.03) translateX(-0.8%); }
+  to { transform: scale(1.03) translateX(0.8%); }
+}
+@keyframes cloud-drift {
+  from { transform: translateX(-7%); }
+  to { transform: translateX(7%); }
+}
+/* A loaded ship riding a moderate swell: a slow rise and fall of a couple of pixels with a slight pitch. */
+@keyframes ship-ride {
+  0% { translate: 0 1.5px; rotate: 0.1deg; }
+  50% { translate: 0 -2px; rotate: -0.12deg; }
+  100% { translate: 0 1.5px; rotate: 0.1deg; }
+}
+@keyframes swell-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(-8%); }
+}
+@keyframes glint-glide {
+  0% { transform: translateX(20%); opacity: 0.5; }
+  50% { opacity: 1; }
+  100% { transform: translateX(150%); opacity: 0.5; }
+}
 @keyframes orbit-drift {
   to { rotate: 360deg; }
 }
+@keyframes haze-drift {
+  from { translate: -4% 0; opacity: 0.65; }
+  to { translate: 4% 0; opacity: 1; }
+}
+/* Reveals a route left to right, with room around the box for the pins and the line's ends. */
+@keyframes route-draw {
+  from { clip-path: inset(-10% 110% -10% -10%); }
+  to { clip-path: inset(-10%); }
+}
+@keyframes badge-ping {
+  0% { opacity: 0.85; scale: 1; }
+  70%, 100% { opacity: 0; scale: 1.6; }
+}
+@keyframes popup-in {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes banner-settle {
+  from { transform: scale(1.06); }
+}
+@keyframes route-flow {
+  to { stroke-dashoffset: -18; }
+}
 @keyframes reveal-clip {
   from { clip-path: inset(100% 0 0 0); transform: scale(1.12); }
+  to { clip-path: inset(0); }
+}
+@keyframes reveal-mask {
+  from { clip-path: inset(10% 8% round 24px); opacity: 0; transform: scale(1.04); }
+  to { clip-path: inset(0 round 24px); }
+}
+@keyframes reveal-badge {
+  from { opacity: 0; transform: scale(0.88); }
+}
+@keyframes reveal-icon {
+  from { opacity: 0; transform: scale(0.7); }
+}
+@keyframes about-depth {
+  from { translate: 0 var(--depth); }
+  to { translate: 0 calc(var(--depth) * -1); }
 }
 @keyframes heading-rise {
   from { clip-path: inset(0 0 100% 0); transform: translateY(0.5em); }
+  to { clip-path: inset(0); }
 }
 @media screen and (prefers-reduced-motion: no-preference) {
   [data-reveal-state="pending"] {
@@ -125,25 +186,15 @@
   [data-reveal="stagger"][data-image="clip"] > [data-reveal-state="in"] :is(time, h3, p) {
     animation: reveal-up 0.6s var(--ease-smooth) calc(var(--reveal-delay, 0ms) + 0.3s) backwards;
   }
-  /* Direction per section: About splits (image from the left, copy from the right); categories alternate
-     left, up and right across each row. Their sections clip horizontal overflow so nothing can scroll sideways. */
+  /* The About page's picture slides in from the left; its section clips horizontal overflow. */
   [data-reveal="image"][data-motion="from-left"][data-reveal-state="in"] {
     animation: reveal-left 0.9s var(--ease-smooth) both;
-  }
-  [data-reveal="stagger"][data-motion="from-right"] > [data-reveal-state="in"] {
-    animation-name: reveal-right;
-  }
-  [data-reveal="stagger"][data-motion="alternate"] > [data-reveal-state="in"]:nth-child(3n + 1) {
-    animation-name: reveal-left;
-  }
-  [data-reveal="stagger"][data-motion="alternate"] > [data-reveal-state="in"]:nth-child(3n) {
-    animation-name: reveal-right;
   }
 
   /* Hero: words rise in turn, then the rest follows (animate-enter); the backdrop settles on load and, where
      scroll-driven animations exist, drifts a few percent slower than the page. At rest it is exactly in place. */
   .hero-word {
-    animation: heading-rise 0.9s var(--ease-smooth) calc(var(--i, 0) * 70ms + 80ms) both;
+    animation: heading-rise 0.9s var(--ease-smooth) calc(var(--i, 0) * 70ms + 80ms) backwards;
   }
   .hero-backdrop {
     animation: hero-settle 1.8s var(--ease-smooth) both;
@@ -156,10 +207,108 @@
     }
   }
 
+  /* Hero ambience (components/home/Hero.tsx): the camera drifts over 50s each way; the two swell layers slide at
+     different speeds and directions so their ripples never line up into an obvious loop; the glint and mist are
+     slower still. All transform/opacity, so they run on the compositor. */
+  .hero-camera {
+    animation: camera-drift 50s ease-in-out infinite alternate;
+  }
+  .hero-swell {
+    animation: swell-drift 14s ease-in-out infinite alternate;
+  }
+  .hero-swell + .hero-swell {
+    animation-duration: 19s;
+    animation-direction: alternate-reverse;
+  }
+  .hero-ship-bob {
+    animation: ship-ride 7s ease-in-out infinite;
+  }
+  .hero-glint {
+    animation: glint-glide 26s ease-in-out infinite alternate;
+  }
+  .hero-mist {
+    animation: haze-drift 44s ease-in-out infinite alternate;
+  }
+  .hero-clouds {
+    animation: cloud-drift 70s ease-in-out infinite alternate;
+  }
+  /* Hero: two soft banks of sea haze drift slowly across the waterline, out of step with each other. */
+  .hero-haze {
+    animation: haze-drift 28s ease-in-out infinite alternate;
+  }
+  .hero-haze + .hero-haze {
+    animation-duration: 37s;
+    animation-direction: alternate-reverse;
+  }
+  /* Inner-page banners: the picture settles in and, where supported, drifts slower than the page. */
+  .banner-backdrop {
+    animation: banner-settle 1.6s var(--ease-smooth) both;
+  }
+  @supports (animation-timeline: scroll()) {
+    .banner-backdrop {
+      animation: banner-settle 1.6s var(--ease-smooth) both, hero-drift linear both;
+      animation-timeline: auto, scroll(root);
+      animation-range: normal, 0 60vh;
+    }
+  }
+  /* Shipment categories: the ship scene fades in, then its route draws, each once, held until PauseOffscreen first
+     sees it ([data-seen]), so they play as the section arrives and never replay on scrolling back. */
+  .ship-scene {
+    animation: reveal-fade 0.9s var(--ease-smooth) both paused;
+  }
+  .route-draw {
+    animation: route-draw 2.6s var(--ease-smooth) 0.7s both paused;
+  }
+  .ship-scene[data-seen],
+  [data-seen] .route-draw {
+    animation-play-state: running;
+  }
+  /* Our Services' ocean and the shipment ship's layers part by a few pixels while scrolling past (--depth per layer),
+     exactly in place mid-pass. */
+  @supports (animation-timeline: view()) {
+    .scroll-depth {
+      animation: about-depth linear both;
+      animation-timeline: view();
+    }
+  }
+  /* Working Process: on desktop the six steps tell the story in order, 1 to 6, rather than both columns at once;
+     the active orbit badge (components/home/ProcessBadges.tsx) sends out a soft ring, and its popup fades up. */
+  @media (min-width: 1024px) {
+    li[data-step="2"][data-reveal-state="in"] { animation-delay: 110ms; }
+    li[data-step="3"][data-reveal-state="in"] { animation-delay: 220ms; }
+    li[data-step="4"][data-reveal-state="in"] { animation-delay: 330ms; }
+    li[data-step="5"][data-reveal-state="in"] { animation-delay: 440ms; }
+    li[data-step="6"][data-reveal-state="in"] { animation-delay: 550ms; }
+  }
+  [data-reveal="orbit"] > button[data-active]::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 9999px;
+    border: 1px solid rgb(103 232 249 / 0.7);
+    pointer-events: none;
+    animation: badge-ping 1.8s ease-out infinite;
+  }
+  [data-reveal="orbit"][data-reveal-state] > .process-popup,
+  .process-popup {
+    animation: popup-in 0.45s var(--ease-smooth) both;
+  }
+
+  /* Our Services routes: the dots drift along each line in the direction of travel (two dash periods per loop, so
+     the loop is seamless). Reduced motion: the dotted lines stand still. */
+  .route-flow {
+    animation: route-flow 1.6s linear infinite;
+  }
+  /* components/ui/PauseOffscreen.tsx: decorative animations stop while their area is off screen. */
+  [data-paused],
+  [data-paused] * {
+    animation-play-state: paused !important;
+  }
+
   /* Working Process: the dashed ring drifts very slowly around its own centre. */
+  /* Rotated as a plain <div> around the ring's <svg> so the compositor can run it: rotating SVG (the shape or the
+     <svg> itself) makes the browser recalculate style, or redo layout, on every frame. */
   .orbit-drift {
-    transform-box: fill-box;
-    transform-origin: center;
     animation: orbit-drift 240s linear infinite;
   }
 
@@ -194,8 +343,8 @@
   [data-reveal="image"][data-reveal-state="in"] [data-reveal-part] {
     animation: reveal-up 0.7s var(--ease-smooth) 0.6s backwards;
   }
-  [data-reveal="orbit"][data-reveal-state="in"] > svg {
-    animation: reveal-ring 1.6s var(--ease-smooth) backwards;
+  [data-reveal="orbit"][data-reveal-state="in"] > div.orbit-drift {
+    animation: reveal-ring 1.6s var(--ease-smooth) backwards, orbit-drift 240s linear infinite;
   }
   [data-reveal="orbit"][data-reveal-state="in"] > div {
     animation: reveal-scale 1s var(--ease-smooth) 0.1s backwards;
@@ -210,6 +359,59 @@
   [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(5) { animation-delay: 0.73s; }
   [data-reveal="orbit"][data-reveal-state="in"] > button:nth-of-type(6) { animation-delay: 0.8s; }
 
+  /* Home About MCL: the ship rises in and opens out of a centred mask, the badge scales in after it, and the benefit rows
+     follow the copy in one by one with their icons popping in. Hover lifts a row and gives its icon a soft glow. */
+  .about-intro [data-reveal="image"][data-motion][data-reveal-state="in"] {
+    animation: reveal-up 0.9s var(--ease-smooth) both;
+  }
+  .about-intro a:focus-visible svg {
+    translate: 3px 0;
+  }
+  .about-intro [data-reveal="image"][data-reveal-state="in"] img {
+    animation: reveal-mask 1.4s var(--ease-smooth) backwards;
+  }
+  .about-intro [data-reveal="image"][data-reveal-state="in"] [data-reveal-part] {
+    transform-origin: 0 100%;
+    animation: reveal-badge 0.8s var(--ease-smooth) 0.7s backwards;
+  }
+  .about-intro [data-reveal-state="in"] .feature {
+    animation: reveal-up 0.7s var(--ease-smooth) calc(var(--reveal-delay, 0ms) + 0.15s) backwards;
+  }
+  .about-intro [data-reveal-state="in"] .feature-icon {
+    animation: reveal-icon 0.6s var(--ease-smooth) calc(var(--reveal-delay, 0ms) + 0.3s) backwards;
+  }
+  .about-intro [data-reveal-state="in"] .feature:nth-child(2),
+  .about-intro [data-reveal-state="in"] .feature:nth-child(2) .feature-icon { --reveal-delay: 120ms; }
+  .about-intro [data-reveal-state="in"] .feature:nth-child(n + 3),
+  .about-intro [data-reveal-state="in"] .feature:nth-child(n + 3) .feature-icon { --reveal-delay: 240ms; }
+  @media (hover: hover) {
+    .about-intro .feature {
+      transition: translate 0.35s var(--ease-smooth);
+    }
+    .about-intro .feature:hover {
+      translate: 0 -3px;
+    }
+    .about-intro .feature-icon {
+      transition: translate 0.3s var(--ease-smooth), box-shadow 0.35s var(--ease-smooth);
+    }
+    .about-intro .feature:hover .feature-icon {
+      box-shadow: 0 0 0 4px rgb(44 53 212 / 0.08), 0 8px 22px -6px rgb(44 53 212 / 0.45);
+    }
+  }
+  /* Faint depth while scrolling past: the picture and the copy drift a few pixels in opposite directions.
+     translate only, so nothing reflows, and it sits exactly in place at the middle of the pass. */
+  @supports (animation-timeline: view()) {
+    .about-intro [data-reveal="image"] > :first-child,
+    .about-intro [data-reveal="stagger"] {
+      animation: about-depth linear both;
+      animation-timeline: view();
+      --depth: 14px;
+    }
+    .about-intro [data-reveal="stagger"] {
+      --depth: -8px;
+    }
+  }
+
   /* FAQ answers open and close smoothly where the browser supports animating <details>. */
   :root {
     interpolate-size: allow-keywords;
@@ -222,6 +424,18 @@
   details[open]::details-content {
     height: auto;
   }
+  /* Home FAQ rows (Faq variant "panel"): the answer fades up a touch as its row opens. */
+  details.faq-panel[open] > p {
+    animation: reveal-up 0.45s var(--ease-smooth) 0.05s backwards;
+  }
+}
+
+/* While real footage plays, the still-photo ambience steps aside. */
+.hero-fx {
+  transition: opacity 1s var(--ease-smooth);
+}
+[data-hero-video][data-playing] ~ .hero-fx {
+  opacity: 0;
 }
 
 /* Hero headline words are inline blocks so each can rise on its own; wrapping is unchanged. */
@@ -244,6 +458,9 @@
   grid-area: 1 / 1;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  /* An explicit 3D transform on the front too, so Safari hides it while turned even though its picture has its own
+     (hover zoom) layer; without it the front can show through the back mid-turn. */
+  transform: rotateX(0deg);
 }
 .flip[data-axis="y"] .flip-back { transform: rotateY(180deg); }
 .flip[data-axis="x"] .flip-back { transform: rotateX(180deg); }
@@ -251,14 +468,14 @@
 .flip[data-axis="x"][data-flipped="true"] > .flip-inner { transform: rotateX(180deg); }
 
 /* Working Process: a step and its orbit badge light up together when either is hovered or focused, or while
-   that step's popup is open. */
+   that step is the active one. */
 :is(
-  section:has([data-step="1"]:is(:hover, :focus-visible), dialog[open][data-step="1"]) [data-step="1"],
-  section:has([data-step="2"]:is(:hover, :focus-visible), dialog[open][data-step="2"]) [data-step="2"],
-  section:has([data-step="3"]:is(:hover, :focus-visible), dialog[open][data-step="3"]) [data-step="3"],
-  section:has([data-step="4"]:is(:hover, :focus-visible), dialog[open][data-step="4"]) [data-step="4"],
-  section:has([data-step="5"]:is(:hover, :focus-visible), dialog[open][data-step="5"]) [data-step="5"],
-  section:has([data-step="6"]:is(:hover, :focus-visible), dialog[open][data-step="6"]) [data-step="6"]
+  section:has([data-step="1"]:is(:hover, :focus-visible), button[data-step="1"][data-active]) [data-step="1"],
+  section:has([data-step="2"]:is(:hover, :focus-visible), button[data-step="2"][data-active]) [data-step="2"],
+  section:has([data-step="3"]:is(:hover, :focus-visible), button[data-step="3"][data-active]) [data-step="3"],
+  section:has([data-step="4"]:is(:hover, :focus-visible), button[data-step="4"][data-active]) [data-step="4"],
+  section:has([data-step="5"]:is(:hover, :focus-visible), button[data-step="5"][data-active]) [data-step="5"],
+  section:has([data-step="6"]:is(:hover, :focus-visible), button[data-step="6"][data-active]) [data-step="6"]
 ) {
   &:is(button) {
     background-color: #13306a;
@@ -298,6 +515,109 @@ li[data-step] h3 {
 @utility section-y {
   padding-block: clamp(64px, 5vw + 40px, 112px);
 }
+/* Why Choose Us, staggered (components/home/Sections.tsx, components/ui/ScrollEntrance.tsx). Keep the 641px breakpoint in
+   sync with WHY_CARDS_MEDIA.
+   - Phones: a plain column.
+   - Tablets and up: a five-track grid, margin | left-only | shared band | right-only | margin, where the card width is
+     --w and the band --b (desktop: 4% margins, 48% cards, 4% band; tablets: 2%, 50%, 4%). Card pairs share a row (set
+     inline as --row): odd cards span left-only + band, even cards band + right-only and sit --off lower via `translate`
+     (layout untouched), so each right card overlaps its left partner along the band and the top corner of the next
+     left card. The edge facing the band is padded by the band's width plus 24px (--b / --w of the card), so overlaps
+     only ever cover padding. The list's bottom padding makes room for the last card's offset.
+   Entrance, driven by --p (0→1 with scroll): a slide in from the card's own side, a slight scale-up and a fade. Later
+   cards sit above earlier ones; the newest fully arrived card gets a brand border and glow. Reduced motion: no slide. */
+.why-cards {
+  display: grid;
+  gap: 12px;
+}
+.why-cards > li > article {
+  position: relative;
+  height: 100%;
+}
+@media (min-width: 641px) {
+  .why-cards {
+    /* Plain numbers (percent of the list) so they can also be divided below; calc() cannot divide by a percentage. */
+    --m: 2;
+    --w: 50;
+    --b: 4;
+    --off: 48px;
+    grid-template-columns:
+      calc(var(--m) * 1%) calc((var(--w) - var(--b)) * 1%) calc(var(--b) * 1%)
+      calc((var(--w) - var(--b)) * 1%) calc(var(--m) * 1%);
+    gap: 28px 0;
+    max-width: 1040px;
+    margin-inline: auto;
+    padding-bottom: var(--off);
+  }
+  .why-cards > li {
+    position: relative;
+    grid-row: var(--row);
+    align-self: start;
+    z-index: calc(var(--i) + 1);
+  }
+  .why-cards > li:nth-child(odd) {
+    --from: -14%;
+    grid-column: 2 / 4;
+  }
+  .why-cards > li:nth-child(even) {
+    --from: 14%;
+    grid-column: 3 / 5;
+    translate: 0 var(--off);
+  }
+  .why-cards > li:nth-child(odd) > article {
+    padding-right: calc(var(--b) / var(--w) * 100% + 24px);
+  }
+  .why-cards > li:nth-child(even) > article {
+    padding-left: calc(var(--b) / var(--w) * 100% + 24px);
+  }
+  .why-cards > li[data-active] > article {
+    border-color: rgb(44 53 212 / 0.3);
+    box-shadow: 0 0 0 1px rgb(44 53 212 / 0.08), 0 26px 60px -28px rgb(44 53 212 / 0.5);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .why-cards > li {
+      opacity: calc(0.08 + var(--p, 1) * 0.92);
+      transform: translateX(calc((1 - var(--p, 1)) * var(--from))) scale(calc(0.96 + var(--p, 1) * 0.04));
+    }
+  }
+}
+@media (min-width: 1025px) {
+  .why-cards {
+    --m: 4;
+    --w: 48;
+    --off: 72px;
+  }
+}
+
+/* Stacked cards (Services page): on desktop each card sticks 22px lower than the one before, so the next one slides up over it and the
+   earlier edges show above it like a stack of paper. The list ends with the last card, so nothing is left blank after
+   it. components/ui/StackScroll.tsx sets --cover (how far the next card has covered this one) and data-active. */
+@media (min-width: 1025px) {
+  .card-stack > li {
+    position: sticky;
+    top: calc(112px + var(--i) * 22px);
+  }
+  .card-stack > li + li {
+    margin-top: 16vh;
+  }
+  .card-stack-card {
+    transform-origin: 50% 0;
+    transition: border-color 0.4s var(--ease-smooth), box-shadow 0.4s var(--ease-smooth);
+  }
+  .card-stack > li[data-active] .card-stack-card {
+    border-color: rgb(44 53 212 / 0.28);
+    box-shadow: 0 0 0 1px rgb(44 53 212 / 0.08), 0 30px 70px -34px rgb(44 53 212 / 0.45);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .card-stack-card {
+      scale: calc(1 - var(--cover, 0) * 0.05);
+    }
+    .card-stack-shade {
+      opacity: calc(var(--cover, 0) * 0.12);
+    }
+  }
+}
+
 @utility eyebrow {
   display: inline-flex;
   align-items: center;

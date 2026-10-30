@@ -1,9 +1,8 @@
 import { PageBanner } from "@/components/layout/PageBanner";
 import { SupportBand } from "@/components/layout/SupportBand";
-import { ServiceCard } from "@/components/services/ServiceCard";
+import { ServiceStack } from "@/components/services/ServiceStack";
 import { SERVICES } from "@/lib/content/services";
 import { pageMetadata } from "@/lib/seo";
-import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata = pageMetadata({
   title: "Services",
@@ -16,10 +15,10 @@ export default function ServicesPage() {
   return (
     <>
       <PageBanner title="Services" lead="Air, sea, Lakshadweep and land cargo — choose a service to see what's included." image="/images/work1-2.jpg" />
-      <section className="section-y">
-        <Reveal variant="stagger" data-image="clip" className="container-site grid gap-6 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4">
-          {SERVICES.map((s) => <ServiceCard key={s.slug} service={s} />)}
-        </Reveal>
+      <section aria-label="Our services" className="section-y bg-soft">
+        <div className="container-site max-w-[1120px]">
+          <ServiceStack services={SERVICES} />
+        </div>
       </section>
       <SupportBand />
     </>

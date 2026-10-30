@@ -1,6 +1,6 @@
 import { PageBanner } from "@/components/layout/PageBanner";
 import { SupportBand } from "@/components/layout/SupportBand";
-import { Benefits, StatImage, WhyChooseUs } from "@/components/home/Sections";
+import { Benefits, RouteScene, StatImage, WhyChooseUs } from "@/components/home/Sections";
 import { IconTile, SectionHeading, cardClass } from "@/components/ui/Section";
 import { VALUES } from "@/lib/content/home";
 import { pageMetadata } from "@/lib/seo";
@@ -40,9 +40,11 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section aria-labelledby="values-title" className="section-y bg-soft">
+      <section aria-labelledby="values-title" className="section-y overflow-x-clip bg-soft">
         <div className="container-site">
           <SectionHeading id="values-title" center eyebrow="What drives us" title="Our Values" />
+          {/* The Our Services route scene: air and sea routes out of one origin, under the heading. */}
+          <RouteScene id="about-route" className="mx-auto -mt-6 mb-8 max-w-[720px] px-2 min-[641px]:-mt-4 min-[641px]:mb-10" svgClassName="block w-full" />
           <Reveal as="ul" variant="stagger" className="m-0 grid list-none grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6 p-0">
             {VALUES.map((v) => (
               <li key={v.title} className={`${cardClass} text-center`}>

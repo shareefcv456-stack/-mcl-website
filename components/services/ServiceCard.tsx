@@ -2,12 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check } from "lucide-react";
 import { ArrowLabel, buttonClass } from "@/components/ui/Button";
+import { cn } from "@/lib/utils/cn";
 import { FlipCard } from "@/components/ui/FlipCard";
 import { serviceHref } from "@/lib/content/services";
 import type { Service } from "@/types/content";
 
-/** Service card. The round control turns it over to the service's highlights and a link to its page. */
-export function ServiceCard({ service }: { service: Service }) {
+/**
+ * Service card. The round control turns it over to the service's highlights and a link to its page.
+ * `showcase` (home page): a taller picture, softer shadow with a blue glow on hover, and an "Explore service" row.
+ */
+export function ServiceCard({ service, showcase }: { service: Service; showcase?: boolean }) {
   const Icon = service.icon;
   const href = serviceHref(service.slug);
   return (
@@ -18,19 +22,33 @@ export function ServiceCard({ service }: { service: Service }) {
       front={
         <Link
           href={href}
-          className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-white text-inherit transition-[box-shadow,border-color] duration-200 ease-smooth hover:border-brand-100 hover:text-inherit hover:shadow-card"
+          className={cn(
+            "group flex h-full flex-col overflow-hidden rounded-3xl border bg-white text-inherit transition-[box-shadow,border-color] ease-smooth hover:text-inherit",
+            showcase
+              ? "border-white shadow-[0_18px_40px_-28px_rgb(11_21_51/0.4)] duration-300 hover:border-brand-100 hover:shadow-[0_0_0_1px_rgb(44_53_212/0.18),0_24px_50px_-22px_rgb(44_53_212/0.42)]"
+              : "border-line duration-200 hover:border-brand-100 hover:shadow-card",
+          )}
         >
-          <div className="relative aspect-[4/3] overflow-hidden bg-soft">
+          <div className={cn("relative overflow-hidden bg-soft", showcase ? "aspect-[5/4]" : "aspect-[4/3]")}>
             <Image src={service.image} alt={service.imageAlt} fill sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-              className="object-cover transition-transform duration-500 ease-smooth group-hover:scale-[1.04]" />
+              className={cn("object-cover transition-transform ease-smooth group-hover:scale-[1.04]", showcase ? "duration-700" : "duration-500")} />
             <span className="absolute top-3 left-3 inline-flex items-center gap-1.5 rounded-full bg-white/95 px-2.5 py-1.5 text-[0.8125rem] font-semibold text-navy">
               <Icon aria-hidden className="size-[15px] text-brand" />{service.tag}
             </span>
           </div>
-          <div className="flex flex-1 flex-col gap-3 p-6">
+          <div className={cn("flex flex-1 flex-col gap-3", showcase ? "p-6 pt-5" : "p-6")}>
             <h3 className="m-0 text-xl transition-colors duration-200 ease-smooth group-hover:text-brand">{service.name}</h3>
             <p className="m-0 flex-1 text-[0.9375rem] text-muted">{service.excerpt}</p>
-            <ArrowLabel>To Know More</ArrowLabel>
+            {showcase ? (
+              <span className="mt-2 flex items-center justify-between gap-3 border-t border-line pt-4 text-brand">
+                <ArrowLabel>Explore service</ArrowLabel>
+                <span aria-hidden className="grid size-9 place-items-center rounded-full bg-brand-50 transition-[background-color,color] duration-300 ease-smooth group-hover:bg-brand group-hover:text-white">
+                  <ArrowRight className="size-4 transition-transform duration-300 ease-smooth group-hover:translate-x-0.5" />
+                </span>
+              </span>
+            ) : (
+              <ArrowLabel>To Know More</ArrowLabel>
+            )}
           </div>
         </Link>
       }

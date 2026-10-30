@@ -26,7 +26,7 @@ export function PageBanner({
 }) {
   return (
     <section className="relative overflow-hidden bg-navy pt-[150px] pb-16 text-on-dark">
-      {image && <Image src={image} alt="" fill loading="eager" sizes="100vw" className="object-cover opacity-35" />}
+      {image && <Image src={image} alt="" fill loading="eager" sizes="100vw" className="banner-backdrop object-cover opacity-35" />}
       <div aria-hidden className="absolute inset-0 bg-[linear-gradient(90deg,rgb(11_21_51/0.95),rgb(11_21_51/0.55))]" />
       <div className="relative container-site">
         <nav aria-label="Breadcrumb" className="animate-enter">

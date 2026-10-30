@@ -1,4 +1,7 @@
-import { Boxes, Briefcase, ClipboardCheck, Globe, Handshake, Headset, Check, MapPin, PackageCheck, Ship, Truck, Shield, Sparkles, Tag, Users, Zap } from "lucide-react";
+import {
+  BookOpen, Boxes, Briefcase, ClipboardCheck, FileCheck, FileText, Gauge, Gift, Globe, Handshake, Headset, Check, House, Landmark, MapPin, PackageCheck, Pill, Plane,
+  Shirt, Ship, ShoppingCart, SprayCan, Truck, Shield, Sparkles, Tag, Users, UtensilsCrossed, Volleyball, Zap,
+} from "lucide-react";
 import type { Faq } from "@/types/content";
 
 export const INTRO =
@@ -8,6 +11,15 @@ export const ABOUT_SUMMARY =
   "MCL has been a pioneer in the logistics field for several years, offering top-notch transportation services to businesses worldwide.";
 
 export const DELIVERED_STAT = { value: "1000+", label: "Delivered Goods" };
+
+/**
+ * Hero background footage. Empty until a licensed clip is added under public/videos; list the files here, e.g.
+ *   { src: "/videos/hero-ship.webm", type: "video/webm", media: "(min-width: 768px)" },
+ *   { src: "/videos/hero-ship.mp4", type: "video/mp4", media: "(min-width: 768px)" },
+ *   { src: "/videos/hero-ship-mobile.mp4", type: "video/mp4" },
+ * The current hero photo stays as poster and fallback. See components/home/HeroVideo.tsx.
+ */
+export const HERO_VIDEO: { src: string; type: "video/mp4" | "video/webm"; media?: string }[] = [];
 
 export const BENEFITS = [
   {
@@ -23,18 +35,18 @@ export const BENEFITS = [
 ];
 
 export const CATEGORIES = [
-  { title: "Documents and Paper works", image: "/images/cat/paper-workes.webp" },
-  { title: "Medicine and Pharma", image: "/images/cat/Medicine.webp" },
-  { title: "Personal Gifts", image: "/images/cat/gift.webp" },
-  { title: "Commercial Parcels", image: "/images/cat/Commercial-Parcels.webp" },
-  { title: "Books and Educational Materials", image: "/images/cat/book.webp" },
-  { title: "Beauty and Personal Care", image: "/images/cat/beauty-item.webp" },
-  { title: "Clothing and Apparels", image: "/images/cat/clothing.webp" },
-  { title: "Household items", image: "/images/cat/house-holding.webp" },
-  { title: "Food and Perishable items", image: "/images/cat/Food.webp" },
-  { title: "Art and Antiques", image: "/images/cat/art.webp" },
-  { title: "Grocery and Stationery", image: "/images/cat/grocery.png" },
-  { title: "Sports and Equipments", image: "/images/cat/sports.webp" },
+  { title: "Documents and Paper works", icon: FileText, image: "/images/cat/paper-workes.webp" },
+  { title: "Medicine and Pharma", icon: Pill, image: "/images/cat/Medicine.webp" },
+  { title: "Personal Gifts", icon: Gift, image: "/images/cat/gift.webp" },
+  { title: "Commercial Parcels", icon: Plane, image: "/images/cat/Commercial-Parcels.webp" },
+  { title: "Books and Educational Materials", icon: BookOpen, image: "/images/cat/book.webp" },
+  { title: "Beauty and Personal Care", icon: SprayCan, image: "/images/cat/beauty-item.webp" },
+  { title: "Clothing and Apparels", icon: Shirt, image: "/images/cat/clothing.webp" },
+  { title: "Household items", icon: House, image: "/images/cat/house-holding.webp" },
+  { title: "Food and Perishable items", icon: UtensilsCrossed, image: "/images/cat/Food.webp" },
+  { title: "Art and Antiques", icon: Landmark, image: "/images/cat/art.webp" },
+  { title: "Grocery and Stationery", icon: ShoppingCart, image: "/images/cat/grocery.png" },
+  { title: "Sports and Equipments", icon: Volleyball, image: "/images/cat/sports.webp" },
 ];
 
 export const PROCESS = [
@@ -66,6 +78,18 @@ export const WHY_CHOOSE_US = [
     icon: Sparkles,
     title: "Innovative Solutions",
     text: "We continuously invest in the latest technology and innovative solutions to enhance our services and ensure efficient logistics operations.",
+  },
+  // The two below restate services MCL already describes on its service pages (Sea Cargo: packing, labeling and
+  // customs clearance; Air Cargo: premium and economy service). No new claims.
+  {
+    icon: FileCheck,
+    title: "Customs Clearance & Documentation",
+    text: "From packing and labeling to customs clearance, we take care of the paperwork and formalities so your shipment moves through every checkpoint smoothly.",
+  },
+  {
+    icon: Gauge,
+    title: "Premium and Economy Options",
+    text: "Choose premium service for expedited, priority handling or economy service for a cost-effective option, so every shipment fits your timeline and budget.",
   },
 ];
 

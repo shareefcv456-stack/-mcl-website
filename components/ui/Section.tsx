@@ -48,8 +48,8 @@ export function IconTile({ icon: Icon, tone = "brand", className }: { icon: Luci
 /** Icon + title + text row used for benefits. */
 export function Feature({ icon, title, text, tone }: { icon: LucideIcon; title: string; text: string; tone?: "brand" | "accent" }) {
   return (
-    <div className="group flex gap-4">
-      <IconTile icon={icon} tone={tone} className="transition-transform duration-300 ease-smooth group-hover:-translate-y-0.5" />
+    <div className="feature group flex gap-4">
+      <IconTile icon={icon} tone={tone} className="feature-icon transition-transform duration-300 ease-smooth group-hover:-translate-y-0.5" />
       <div>
         <h3 className="mb-1.5 text-xl">{title}</h3>
         <p className="m-0 text-[0.9375rem] text-muted">{text}</p>

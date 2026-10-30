@@ -3,6 +3,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { VolumeCalculator } from "@/components/calculator/VolumeCalculator";
 import { ContactForm } from "@/components/forms/ContactForm";
+import { CountUp } from "@/components/ui/CountUp";
 
 describe("<VolumeCalculator>", () => {
   it("shows 12.00 kg for 50 × 40 × 30 cm", async () => {
@@ -60,5 +61,43 @@ describe("<ContactForm>", () => {
     expect(url).toBe("/api/quote");
     expect(JSON.parse(init!.body as string)).toMatchObject({ subject: "Quote: Personal Gifts", form_botcheck: "" });
     fetchSpy.mockRestore();
+  });
+});
+
+describe("<CountUp>", () => {
+  it("counts up on entry, stays put while visible, and replays after leaving and returning", () => {
+    let notify: (visible: boolean) => void = () => {};
+    vi.stubGlobal("matchMedia", () => ({ matches: false }));
+    vi.stubGlobal("IntersectionObserver", class {
+      constructor(cb: IntersectionObserverCallback) {
+        notify = (visible) => cb([{ isIntersecting: visible } as IntersectionObserverEntry], {} as IntersectionObserver);
+      }
+      observe() {}
+      disconnect() {}
+    });
+    const frames: FrameRequestCallback[] = [];
+    vi.stubGlobal("requestAnimationFrame", (cb: FrameRequestCallback) => frames.push(cb));
+    vi.stubGlobal("cancelAnimationFrame", () => frames.splice(0));
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue({ top: 5000 } as DOMRect);
+    const { container } = render(<CountUp value="1000+" duration={100} delay={0} />);
+    const shown = container.querySelector("[aria-hidden]")!;
+    expect(shown).toHaveTextContent("1000+");
+
+    const countUp = () => {
+      notify(true);
+      frames.shift()!(performance.now());
+      expect(shown.textContent).toBe("0+");
+      frames.shift()!(performance.now() + 1000);
+      expect(shown).toHaveTextContent("1000+");
+      expect(frames).toHaveLength(0);
+    };
+    countUp();
+    notify(true); // still visible: no restart
+    expect(frames).toHaveLength(0);
+    notify(false);
+    expect(shown.textContent).toBe("0+");
+    countUp();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 });

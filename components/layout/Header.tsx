@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, type MouseEvent } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -61,6 +61,18 @@ const Logo = ({ className, eager }: { className?: string; eager?: boolean }) => 
   <Image src="/images/logo-mark.png" alt="MCL logo" width={250} height={236} loading={eager ? "eager" : "lazy"} className={cn("h-[52px] w-auto", className)} />
 );
 
+/**
+ * The logo links home. From any other page Next.js navigates and starts at the top by itself; on the home page a link
+ * to "/" does nothing, so scroll back to the hero (and drop any #section from the address). Modified clicks (new tab,
+ * new window) are left to the browser.
+ */
+function backToTop(e: MouseEvent<HTMLAnchorElement>) {
+  if (location.pathname !== "/" || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  e.preventDefault();
+  if (location.hash) history.pushState(null, "", "/");
+  scrollTo({ top: 0 });
+}
+
 export function Header() {
   const drawerRef = useRef<HTMLDialogElement>(null);
   const close = () => drawerRef.current?.close();
@@ -68,7 +80,7 @@ export function Header() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-[clamp(16px,4vw,40px)] py-3">
       <nav aria-label="Main" className="mx-auto flex max-w-[1200px] items-center gap-6 rounded-full border border-line/80 bg-white py-2 pr-2 pl-4 shadow-card">
-        <Link href="/" aria-label="MCL – Meem Continental Logistics, home" className="flex shrink-0 items-center">
+        <Link href="/" aria-label="MCL – Meem Continental Logistics, home" onClick={backToTop} className="flex shrink-0 items-center">
           <Logo eager className="max-[480px]:h-[42px]" />
         </Link>
         <ul className="mx-auto hidden list-none gap-0.5 p-0 min-[1081px]:flex">

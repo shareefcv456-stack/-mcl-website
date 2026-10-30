@@ -33,6 +33,7 @@ export function FlipCard({
   faceClassName?: string;
 }) {
   const [flipped, setFlipped] = useState(false);
+  const card = useRef<HTMLDivElement>(null);
   const frontToggle = useRef<HTMLButtonElement>(null);
   const backToggle = useRef<HTMLButtonElement>(null);
   // Move focus to the control on the face that just turned up, but only when a control turned the card.
@@ -44,6 +45,29 @@ export function FlipCard({
     (flipped ? backToggle : frontToggle).current?.focus();
   }, [flipped]);
 
+  // One card open at a time: opening announces itself and any other open card turns back; so does a tap or click
+  // anywhere outside, and Escape (which returns focus to the front if it was inside).
+  useEffect(() => {
+    if (!flipped) return;
+    const el = card.current;
+    document.dispatchEvent(new CustomEvent("flipcard:open", { detail: el }));
+    const onOtherOpen = (e: Event) => (e as CustomEvent).detail !== el && setFlipped(false);
+    const onPointerDown = (e: PointerEvent) => !el?.contains(e.target as Node) && setFlipped(false);
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      moveFocus.current = el?.contains(document.activeElement) ?? false;
+      setFlipped(false);
+    };
+    document.addEventListener("flipcard:open", onOtherOpen);
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("flipcard:open", onOtherOpen);
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [flipped]);
+
   const turn = (to: boolean) => {
     moveFocus.current = true;
     setFlipped(to);
@@ -51,6 +75,7 @@ export function FlipCard({
 
   return (
     <div
+      ref={card}
       data-flipped={flipped}
       data-axis={axis}
       className={cn("flip", className)}
