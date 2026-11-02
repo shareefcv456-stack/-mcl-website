@@ -73,7 +73,7 @@ export const SERVICES: Service[] = [
     heading: "Ocean Freight",
     tag: "Sea",
     icon: Ship,
-    image: "/images/service1-2.jpg",
+    image: "/images/about-ship.jpg",
     imageAlt: "Container vessel at sea",
     excerpt:
       "At Meem Continental Logistics (MCL), we provide cost-effective and secure shipping solutions for your cargo. Through partnerships with…",
@@ -166,7 +166,7 @@ export const SERVICES: Service[] = [
     heading: "Lakshadweep Cargo",
     tag: "Port-to-port",
     icon: Anchor,
-    image: "/images/pexels-fabianwiktor-994605_1.jpg",
+    image: "/images/services/lakshadweep-coast.webp",
     imageAlt: "Lakshadweep island coastline",
     excerpt:
       "MCL providing comprehensive port-to-port shipment to Lakshadweep. Our operations primarily run from strategic ports of Beypore and Mangalore…",
@@ -211,8 +211,8 @@ export const SERVICES: Service[] = [
     heading: "Land Cargo",
     tag: "Land",
     icon: Truck,
-    image: "/images/2151468875_1_YbujkTf.jpg",
-    imageAlt: "Cargo truck on highway",
+    image: "/images/sub/ftl.jpg",
+    imageAlt: "MCL cargo truck on the highway",
     excerpt:
       "MCL offers reliable and efficient land transportation services, providing comprehensive solutions to ensure your cargo is delivered safely…",
     highlights: ["Extensive Network", "Real Time Tracking", "Secure and Safe Transport", "Regulatory Adherence"],

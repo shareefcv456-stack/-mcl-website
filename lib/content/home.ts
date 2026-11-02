@@ -13,13 +13,15 @@ export const ABOUT_SUMMARY =
 export const DELIVERED_STAT = { value: "1000+", label: "Delivered Goods" };
 
 /**
- * Hero background footage. Empty until a licensed clip is added under public/videos; list the files here, e.g.
+ * Hero background footage (public/videos). Lighter or alternative encodes can be listed alongside, e.g.
  *   { src: "/videos/hero-ship.webm", type: "video/webm", media: "(min-width: 768px)" },
  *   { src: "/videos/hero-ship.mp4", type: "video/mp4", media: "(min-width: 768px)" },
  *   { src: "/videos/hero-ship-mobile.mp4", type: "video/mp4" },
  * The current hero photo stays as poster and fallback. See components/home/HeroVideo.tsx.
  */
-export const HERO_VIDEO: { src: string; type: "video/mp4" | "video/webm"; media?: string }[] = [];
+export const HERO_VIDEO: { src: string; type: "video/mp4" | "video/webm"; media?: string }[] = [
+  { src: "/ship7.mp4", type: "video/mp4" },
+];
 
 export const BENEFITS = [
   {
@@ -45,7 +47,7 @@ export const CATEGORIES = [
   { title: "Household items", icon: House, image: "/images/cat/house-holding.webp" },
   { title: "Food and Perishable items", icon: UtensilsCrossed, image: "/images/cat/Food.webp" },
   { title: "Art and Antiques", icon: Landmark, image: "/images/cat/art.webp" },
-  { title: "Grocery and Stationery", icon: ShoppingCart, image: "/images/cat/grocery.png" },
+  { title: "Grocery and Stationery", icon: ShoppingCart, image: "/images/cat/grocery.webp" },
   { title: "Sports and Equipments", icon: Volleyball, image: "/images/cat/sports.webp" },
 ];
 
@@ -93,12 +95,13 @@ export const WHY_CHOOSE_US = [
   },
 ];
 
+// Each line restates MCL's own copy elsewhere on the site (About, Why Choose Us, Benefits). No new claims.
 export const VALUES = [
-  { icon: Handshake, title: "Reliability" },
-  { icon: Shield, title: "Professionalism" },
-  { icon: Headset, title: "Customer Satisfaction" },
-  { icon: Sparkles, title: "Innovation" },
-  { icon: Check, title: "Integrity" },
+  { icon: Handshake, title: "Reliability", text: "Reliable, efficient and timely logistics solutions, so your cargo reaches its destination safely and on time." },
+  { icon: Shield, title: "Professionalism", text: "Our professional team is dedicated to providing the highest level of service." },
+  { icon: Headset, title: "Customer Satisfaction", text: "Customer satisfaction is our top priority. We work closely with our clients to understand their needs." },
+  { icon: Sparkles, title: "Innovation", text: "We continuously invest in the latest technology and innovative solutions to enhance our services." },
+  { icon: Check, title: "Integrity", text: "Clear, upfront information with no hidden fees or unexpected charges." },
 ];
 
 export const PORTFOLIO = [

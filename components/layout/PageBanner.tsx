@@ -33,7 +33,8 @@ export function PageBanner({
           <ol className="mb-4 flex list-none flex-wrap gap-2 p-0 text-[0.8125rem]">
             {[{ label: "Home", href: "/" }, ...crumbs].map((c) => (
               <li key={c.href} className="after:ml-2 after:text-[#6b7699] after:content-['/']">
-                <Link href={c.href} className="text-on-dark-accent hover:text-white">{c.label}</Link>
+                {/* Padded to a 24px tap target; the negative margin keeps the line where it was. */}
+                <Link href={c.href} className="-my-1 inline-block py-1 text-on-dark-accent hover:text-white">{c.label}</Link>
               </li>
             ))}
             <li aria-current="page" className="text-white">{title}</li>

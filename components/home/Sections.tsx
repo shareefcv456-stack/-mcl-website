@@ -169,8 +169,10 @@ function RouteLines({ id, routes, movers, viewBox, preserveAspectRatio, classNam
                 </g>
               </>
             )}
-            <circle cx={r.pin[0]} cy={r.pin[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
-            <MapPin x={r.pin[0] - 6} y={r.pin[1] - 13} width={12} height={12} className="text-brand" />
+            <g className="route-pin">
+              <circle cx={r.pin[0]} cy={r.pin[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
+              <MapPin x={r.pin[0] - 6} y={r.pin[1] - 13} width={12} height={12} className="text-brand" />
+            </g>
           </g>
         );
       })}
@@ -299,25 +301,61 @@ const CATEGORY_ROUTES: Route[] = [
   { d: "M360 200 C 480 172, 620 186, 712 236", width: 1.6, dash: "4 6", dur: 9, pin: [712, 236] },
 ];
 
+// Shipment Categories backdrop (styles: .cat-ocean in globals.css), in section coordinates (viewBox 1440 × 1000,
+// cropped like a cover image). The ship scene owns the top right (about x > 780, y < 440), so nothing is drawn there.
+const OCEAN_NODES: [number, number][] = [[60, 190], [430, 70], [190, 540], [650, 470], [1380, 580], [990, 880], [250, 950], [1410, 960]];
+// [from, to, bow]: each route bows to one side of the straight line by `bow` units; `wide` routes are left out on phones.
+const OCEAN_ROUTES: { a: number; b: number; bow: number; wide?: boolean }[] = [
+  { a: 0, b: 1, bow: -70 }, { a: 0, b: 2, bow: 60, wide: true }, { a: 2, b: 3, bow: -50 }, { a: 3, b: 4, bow: 110 },
+  { a: 2, b: 6, bow: -60, wide: true }, { a: 3, b: 5, bow: 70 }, { a: 5, b: 7, bow: -40, wide: true }, { a: 4, b: 5, bow: 60, wide: true },
+];
+const oceanRoute = ({ a, b, bow }: { a: number; b: number; bow: number }) => {
+  const [[x1, y1], [x2, y2]] = [OCEAN_NODES[a], OCEAN_NODES[b]];
+  const len = Math.hypot(x2 - x1, y2 - y1);
+  return `M${x1} ${y1} Q ${(x1 + x2) / 2 - ((y2 - y1) / len) * bow} ${(y1 + y2) / 2 + ((x2 - x1) / len) * bow}, ${x2} ${y2}`;
+};
+// Sea-floor contour lines across the lower half, and a globe grid rising from below the bottom edge.
+const CONTOURS = [560, 630, 700, 770, 840, 910].map((y, i) => `M-120 ${y} C 180 ${y - 34 + i * 6}, 420 ${y + 30}, 720 ${y} S 1240 ${y - 30 + i * 4}, 1560 ${y + 8}`);
+const MERIDIANS = [-4, -3, -2, -1, 0, 1, 2, 3, 4].map((k) => `M${720 + k * 300} 1060 Q ${720 + k * 140} 640, 720 470`);
+const PARALLELS = [[1180, 600], [980, 470], [780, 350]].map(([rx, ry]) => `M${720 - rx} 1060 A ${rx} ${ry} 0 0 1 ${720 + rx} 1060`);
+
+function OceanBackdrop() {
+  return (
+    <PauseOffscreen aria-hidden className="cat-ocean pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+      {/* Light: a soft glow behind the ship and a broad, faint band of light drifting across the water. */}
+      <span className="absolute -top-[10%] right-[-5%] hidden h-[70%] w-[60%] min-[1025px]:block bg-[radial-gradient(closest-side,rgb(255_255_255/0.85),rgb(214_238_255/0.35)_55%,transparent)]" />
+      <span className="cat-light absolute top-[38%] left-[10%] h-[50%] w-[70%] bg-[radial-gradient(closest-side,rgb(165_235_255/0.22),transparent)]" />
+      {/* Both pattern layers fade out before the bottom edge, so nothing stops short at the seam with the next section. */}
+      <svg viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" className="scroll-depth absolute inset-0 size-full [--depth:18px] [mask-image:linear-gradient(180deg,#000_78%,transparent_94%)]" fill="none">
+        <g className="hidden min-[641px]:inline" stroke="#bfe3ff" strokeOpacity={0.16} strokeWidth={1}>
+          {MERIDIANS.map((d) => <path key={d} d={d} />)}
+          {PARALLELS.map((d) => <path key={d} d={d} />)}
+        </g>
+        <g className="cat-drift hidden min-[641px]:inline" stroke="#ffffff" strokeOpacity={0.1} strokeWidth={1.2}>
+          {CONTOURS.map((d) => <path key={d} d={d} />)}
+        </g>
+      </svg>
+      <svg viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" className="scroll-depth absolute inset-0 size-full [--depth:8px] [mask-image:linear-gradient(180deg,#000_78%,transparent_94%)]" fill="none">
+        {OCEAN_ROUTES.map((r, i) => (
+          <path key={i} d={oceanRoute(r)} pathLength={1} className={cn("cat-route", r.wide && "max-[640px]:hidden")} style={{ "--i": i } as CSSProperties} stroke="#7fd8ff" strokeOpacity={0.55} strokeWidth={1.4} strokeLinecap="round" />
+        ))}
+        {OCEAN_NODES.map(([x, y], i) => (
+          <g key={i} className={cn(i > 5 && "max-[640px]:hidden")}>
+            <circle cx={x} cy={y} r={9} className="net-node" style={{ "--i": i * 0.6 } as CSSProperties} stroke="#7fe3ff" strokeOpacity={0.7} />
+            <circle cx={x} cy={y} r={3.2} fill="#ffffff" stroke="#2c35d4" strokeOpacity={0.5} strokeWidth={1} />
+          </g>
+        ))}
+      </svg>
+    </PauseOffscreen>
+  );
+}
+
 export function CategoriesSection() {
   return (
-    // White to soft down the page, like the sections around it (Our Services ends in white, so the edge is seamless).
-    // Clipped sideways only, so the sky can rise into the empty bottom padding of Our Services above.
-    <section aria-labelledby="categories-title" className="section-y relative isolate overflow-x-clip bg-[linear-gradient(180deg,#fff_0%,var(--color-soft)_100%)]">
-      {/* Dotted texture: behind the ship's routes and, more faintly, down the left beside the heading. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(rgb(11_21_51/0.07)_1px,transparent_1.2px)] [background-size:22px_22px] [mask-image:radial-gradient(60%_55%_at_70%_10%,#000,transparent),radial-gradient(28%_40%_at_4%_30%,rgb(0_0_0/0.7),transparent)]" />
-      {/* Sky: real daylight sky and clouds (sky-clouds.webp, cut from the top of the ship photo, so the two skies match),
-          drifting slowly, with a soft patch of sunlight. It rises 56px above the section into the bottom padding of Our
-          Services (a short 40px fade, so the cards above lead straight into it with no white band) and fades out above
-          the cards. Small screens:
-          across the top, under a light veil behind the heading. Desktop: the right of the page only, fading out by
-          mask toward the heading, so the left stays clean white with no wash over it. While scrolling past it drifts a
-          little slower than the ship (.scroll-depth), for depth. */}
-      <PauseOffscreen aria-hidden className="scroll-depth pointer-events-none absolute inset-x-0 -top-14 -z-20 h-[436px] overflow-hidden [--depth:-8px] [mask-image:linear-gradient(180deg,transparent_0%,#000_40px,#000_62%,transparent_100%)] min-[641px]:h-[496px] min-[1025px]:h-[536px] min-[1025px]:[mask-composite:intersect] min-[1025px]:[mask-image:linear-gradient(180deg,transparent_0%,#000_40px,#000_62%,transparent_100%),linear-gradient(90deg,transparent_24%,#000_52%)]">
-        <div className="hero-clouds absolute inset-y-0 -left-[15%] w-[130%] bg-[url(/images/sky-clouds.webp)] bg-cover bg-[50%_40%]" />
-        <span className="absolute -top-[30%] right-[14%] size-[520px] bg-[radial-gradient(closest-side,rgb(255_247_222/0.5),transparent)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(255_255_255/0.7)_0%,rgb(255_255_255/0.5)_50%,rgb(255_255_255/0)_85%)] min-[1025px]:hidden" />
-      </PauseOffscreen>
+    // From white at the top (Our Services ends in white) through ice blue into deep ocean, ending in the navy the Working
+    // Process section below starts with, so both edges are seamless.
+    <section aria-labelledby="categories-title" className="section-y relative isolate overflow-x-clip bg-[linear-gradient(180deg,#ffffff_0%,#f1f8fe_14%,#d9ecfa_34%,#7fb3df_56%,#245a94_76%,#0b1533_95%)]">
+      <OceanBackdrop />
       <div className="container-site">
         <SectionHeading id="categories-title" eyebrow="What we ship" title="Shipment categories" intro="Select a category to request a quote." />
         {/* The ship scene, the section's focal point. Desktop: top right beside the heading (positioned against the
@@ -346,8 +384,10 @@ export function CategoriesSection() {
             {/* The route draws itself in once, after the ship fades in, revealing its pins left to right; then its
                 arrows keep travelling and each pin glows as one arrives. Same layer as the ship, so the pins stay on it. */}
             <RouteLines id="category-route" routes={CATEGORY_ROUTES} viewBox="0 0 768 512" preserveAspectRatio="xMidYMid slice" className="route-draw absolute inset-0 size-full">
-              <circle cx={CATEGORY_ORIGIN[0]} cy={CATEGORY_ORIGIN[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
-              <MapPin x={CATEGORY_ORIGIN[0] - 6} y={CATEGORY_ORIGIN[1] - 13} width={12} height={12} className="text-brand" />
+              <g className="route-pin">
+                <circle cx={CATEGORY_ORIGIN[0]} cy={CATEGORY_ORIGIN[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
+                <MapPin x={CATEGORY_ORIGIN[0] - 6} y={CATEGORY_ORIGIN[1] - 13} width={12} height={12} className="text-brand" />
+              </g>
             </RouteLines>
           </div>
         </PauseOffscreen>
@@ -473,7 +513,7 @@ export function VolumeFaqSection() {
     <section id="volume" aria-labelledby="volume-title" className="section-y scroll-mt-24">
       {/* Desktop: the two columns share two rows (subgrid), so the calculator and the FAQ list start on the same
           line however long each intro is. Each column fades up as it enters (stagger reveal). */}
-      <Reveal variant="stagger" className="container-site grid gap-x-[clamp(40px,5vw,72px)] gap-y-16 min-[861px]:grid-cols-2 min-[861px]:gap-y-9">
+      <Reveal variant="stagger" className="container-site grid grid-cols-1 gap-x-[clamp(40px,5vw,72px)] gap-y-16 min-[861px]:grid-cols-2 min-[861px]:gap-y-9">
         <div className="grid content-start gap-8 min-[861px]:row-span-2 min-[861px]:grid-rows-subgrid">
           <div>
             <span className="eyebrow">Volume Conversion</span>
@@ -495,7 +535,8 @@ export function VolumeFaqSection() {
           </div>
           <div>
             <Faq items={FAQS} variant="panel" />
-            <ButtonLink href="/contact" arrow className="mt-7">Still have questions? Contact us</ButtonLink>
+            {/* May wrap to two lines on the narrowest phones (about 340px and below) rather than run past the edge. */}
+            <ButtonLink href="/contact" arrow className="mt-7 max-w-full text-left whitespace-normal! leading-tight!">Still have questions? Contact us</ButtonLink>
           </div>
         </div>
       </Reveal>

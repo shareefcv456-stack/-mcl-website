@@ -25,6 +25,9 @@ export default defineConfig({
     command: `npm run start -- -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: true,
+    // Never send the tests' invented tracking numbers to IMD's production API: a blank customer code keeps tracking
+    // in its `not_connected` state (variables already set here are not overridden by .env.local).
+    env: { IMD_TRACKING_CUSTOMER_CODE: "" },
     timeout: 60_000,
   },
 });

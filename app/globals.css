@@ -95,12 +95,6 @@
   from { transform: translateX(-7%); }
   to { transform: translateX(7%); }
 }
-/* A loaded ship riding a moderate swell: a slow rise and fall of a couple of pixels with a slight pitch. */
-@keyframes ship-ride {
-  0% { translate: 0 1.5px; rotate: 0.1deg; }
-  50% { translate: 0 -2px; rotate: -0.12deg; }
-  100% { translate: 0 1.5px; rotate: 0.1deg; }
-}
 @keyframes swell-drift {
   from { transform: translateX(0); }
   to { transform: translateX(-8%); }
@@ -152,6 +146,51 @@
 @keyframes about-depth {
   from { translate: 0 var(--depth); }
   to { translate: 0 calc(var(--depth) * -1); }
+}
+/* About hero: a distant airliner crossing the sky from beyond the left edge to beyond the right, climbing slightly.
+   Its resting place (reduced motion) is 52% across, so the path is measured from there. */
+@keyframes plane-cross {
+  from { translate: calc(-52vw - 360px) 2vh; }
+  to { translate: calc(48vw + 40px) -3vh; }
+}
+@keyframes net-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes vw-light {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+@keyframes vw-icon {
+  50% { translate: 0 -5px; rotate: -6deg; }
+  to { translate: 0 -3px; rotate: -4deg; }
+}
+/* Shipment Categories (.cat-ocean): a route draws in, holds, then fades out before drawing again. */
+@keyframes cat-route {
+  0% { stroke-dashoffset: 1; opacity: 0; }
+  8% { opacity: 1; }
+  40%, 78% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes cat-light {
+  from { translate: -18% 0; opacity: 0.6; }
+  to { translate: 22% -6%; opacity: 1; }
+}
+@keyframes cat-drift {
+  from { translate: -40px 0; }
+  to { translate: 40px 0; }
+}
+/* About › Our Network blueprint: each stage lights up for a quarter of a 12s cycle, in order. */
+@keyframes bp-stage {
+  0%, 25% { border-color: rgb(103 232 249 / 0.75); background-color: rgb(14 52 102 / 0.9); }
+  33%, 100% { border-color: rgb(255 255 255 / 0.15); background-color: rgb(6 22 49 / 0.8); }
+}
+@keyframes bp-stage-n {
+  0%, 25% { background-color: rgb(103 232 249); color: #061631; }
+  33%, 100% { background-color: rgb(255 255 255 / 0.1); color: rgb(165 243 252); }
+}
+@keyframes journey-fill {
+  from { scale: 1 0; }
 }
 @keyframes heading-rise {
   from { clip-path: inset(0 0 100% 0); transform: translateY(0.5em); }
@@ -219,9 +258,6 @@
   .hero-swell + .hero-swell {
     animation-duration: 19s;
     animation-direction: alternate-reverse;
-  }
-  .hero-ship-bob {
-    animation: ship-ride 7s ease-in-out infinite;
   }
   .hero-glint {
     animation: glint-glide 26s ease-in-out infinite alternate;
@@ -298,6 +334,63 @@
      the loop is seamless). Reduced motion: the dotted lines stand still. */
   .route-flow {
     animation: route-flow 1.6s linear infinite;
+  }
+  /* About (components/about/AboutSections.tsx): the hero's airliner crosses every 60s; its air links draw in one after
+     another, then their points of light breathe, as do the values backdrop's. */
+  .about-plane {
+    animation: plane-cross 60s linear -22s infinite;
+  }
+  .net-draw {
+    stroke-dasharray: 1;
+    animation: net-draw 2.2s var(--ease-smooth) calc(var(--i) * 0.35s + 0.8s) both;
+  }
+  .net-node {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: badge-ping 3.6s ease-out calc(var(--i) * 0.9s) infinite both;
+  }
+  /* About › Our Values (.values-world): the sky's light breathes, the far clouds drift the other way and slower than the
+     near ones, and the sea's ripples slide. Each icon floats up a little and turns on hover. */
+  .values-world .vw-light {
+    animation: vw-light 18s ease-in-out infinite alternate;
+  }
+  .values-world .vw-clouds-far {
+    animation: cloud-drift 110s ease-in-out infinite alternate-reverse;
+  }
+  .values-world .vw-swell {
+    animation: swell-drift 16s ease-in-out infinite alternate;
+  }
+  .values-world .group:hover .vw-icon {
+    animation: vw-icon 0.9s var(--ease-smooth) both;
+  }
+  /* Home › Shipment Categories backdrop: routes draw, hold and fade in turn; a band of light drifts across; the
+     contour lines sway slowly. */
+  .cat-ocean .cat-route {
+    stroke-dasharray: 1;
+    animation: cat-route 11s var(--ease-smooth) calc(var(--i) * 1.4s) infinite both;
+  }
+  .cat-ocean .cat-light {
+    animation: cat-light 26s ease-in-out infinite alternate;
+  }
+  .cat-ocean .cat-drift {
+    animation: cat-drift 30s ease-in-out infinite alternate;
+  }
+  .bp .bp-stage {
+    animation: bp-stage 12s ease-in-out calc(var(--i) * 3s + 1s) infinite both;
+  }
+  .bp .bp-stage-n {
+    animation: bp-stage-n 12s ease-in-out calc(var(--i) * 3s + 1s) infinite both;
+  }
+  /* The journey's line fills from the top as the steps scroll past. */
+  @supports (animation-timeline: view()) {
+    .journey {
+      view-timeline: --journey;
+    }
+    .journey-fill {
+      animation: journey-fill linear both;
+      animation-timeline: --journey;
+      animation-range: entry 30% cover 70%;
+    }
   }
   /* components/ui/PauseOffscreen.tsx: decorative animations stop while their area is off screen. */
   [data-paused],
@@ -441,6 +534,16 @@
 /* Hero headline words are inline blocks so each can rise on its own; wrapping is unchanged. */
 .hero-word {
   display: inline-block;
+}
+
+/* What We Ship: on phones the ship scene, and with it its route drawing, is scaled down to the screen (pins shrink
+   to about 9px), so each pin is enlarged about its tip to the desktop size (16px). Tablets are already close. */
+@media (max-width: 640px) {
+  .ship-scene .route-pin {
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    transform: scale(1.7);
+  }
 }
 
 /* 3D flip card (components/ui/FlipCard.tsx). Both faces share one grid cell, so the card keeps its height. */

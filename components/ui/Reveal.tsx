@@ -32,6 +32,9 @@ function observe(el: Element, reveal: (order: number) => void) {
  * its entrance again on the way back in. Targets on screen when this runs stay as they are, so nothing flashes.
  */
 function replay(targets: HTMLElement[]) {
+  // The 48px margin (more than any entrance's own movement, at most 32px) stops an element sitting right at the
+  // screen edge from flickering: without it, its rise from 16px below could push it back out of view, hiding it
+  // again, over and over.
   const io = new IntersectionObserver((entries) => {
     let order = 0;
     for (const e of entries) {
@@ -42,7 +45,7 @@ function replay(targets: HTMLElement[]) {
         t.dataset.revealState = "in";
       }
     }
-  });
+  }, { rootMargin: "48px 0px" });
   for (const t of targets) {
     if (t.getBoundingClientRect().top >= innerHeight) t.dataset.revealState = "pending";
     io.observe(t);

@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { Mail, Phone } from "lucide-react";
 import { PageBanner } from "@/components/layout/PageBanner";
 import { IconTile, cardClass, cardHoverClass } from "@/components/ui/Section";
@@ -23,6 +24,9 @@ async function TrackingLookup({ searchParams }: { searchParams: PageProps<"/trac
   if (!value) return <TrackingForm />;
 
   const parsed = trackingIdSchema.safeParse(value);
+  // The IMD lookup must only run for a real request: without this, Next's prerender pass starts the fetch and then
+  // abandons it, which would show up in the logs as a failed IMD call.
+  if (parsed.success) await connection();
   return (
     <div className="grid gap-5">
       <TrackingForm key={value} defaultValue={value} />
@@ -50,7 +54,9 @@ export default function TrackingPage(props: PageProps<"/tracking">) {
               <TrackingLookup searchParams={props.searchParams} />
             </Suspense>
           </div>
-          <div className="mt-6 grid gap-6 min-[641px]:grid-cols-2">
+          {/* grid-cols-1 caps the single column at the container width, so the long email truncates instead of pushing
+              the cards past the screen edge on small phones. */}
+          <div className="mt-6 grid grid-cols-1 gap-6 min-[641px]:grid-cols-2">
             <a href={`tel:${SITE.phone.tel}`} className={`${cardClass} ${cardHoverClass} flex items-center gap-3 font-semibold text-navy`}>
               <IconTile icon={Phone} />
               <span>Call support<small className="block font-normal text-muted">{SITE.phone.label}</small></span>

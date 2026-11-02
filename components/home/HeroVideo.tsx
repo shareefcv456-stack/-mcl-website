@@ -11,11 +11,12 @@ export interface HeroVideoSource {
 
 /**
  * Real background footage for the hero, laid over the still photo (which stays as poster and fallback).
- * Nothing downloads until the effect decides to play: not for reduced motion or Data Saver. The video is invisible
+ * Only its metadata loads up front; the footage itself waits for the effect to decide to play: not for reduced motion or Data Saver. The video is invisible
  * until it is actually playing, then fades in, so there is never a blank frame; it pauses while the hero is off screen
  * or the tab is hidden. data-playing lets the CSS stand the fallback effects down while real footage runs.
  */
-export function HeroVideo({ sources, poster }: { sources: HeroVideoSource[]; poster: string }) {
+/** `playbackRate` slows the footage (1 = as recorded); applied before playback starts, so there is no speed jump. */
+export function HeroVideo({ sources, poster, playbackRate = 1 }: { sources: HeroVideoSource[]; poster: string; playbackRate?: number }) {
   const ref = useRef<HTMLVideoElement>(null);
   useEffect(() => {
     const video = ref.current;
@@ -36,6 +37,8 @@ export function HeroVideo({ sources, poster }: { sources: HeroVideoSource[]; pos
     });
     io.observe(video);
     document.addEventListener("visibilitychange", sync);
+    video.defaultPlaybackRate = playbackRate;
+    video.playbackRate = playbackRate;
     video.load();
     sync();
     return () => {
@@ -44,7 +47,7 @@ export function HeroVideo({ sources, poster }: { sources: HeroVideoSource[]; pos
       video.removeEventListener("playing", onPlaying);
       video.pause();
     };
-  }, []);
+  }, [playbackRate]);
   return (
     <video
       ref={ref}
@@ -54,9 +57,9 @@ export function HeroVideo({ sources, poster }: { sources: HeroVideoSource[]; pos
       muted
       loop
       playsInline
-      preload="none"
+      preload="metadata"
       poster={poster}
-      className="absolute inset-0 size-full object-cover object-[60%_50%] opacity-0 transition-opacity duration-1000 ease-smooth data-playing:opacity-100"
+      className="absolute inset-0 size-full object-cover object-[62%_50%] opacity-0 transition-opacity duration-1000 ease-smooth data-playing:opacity-100"
     >
       {sources.map((s) => (
         <source key={s.src} src={s.src} type={s.type} media={s.media} />

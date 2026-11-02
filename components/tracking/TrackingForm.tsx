@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -25,9 +25,13 @@ export function TrackingForm({
 }) {
   const router = useRouter();
   const [error, setError] = useState<string>();
+  // The lookup runs on the server while /tracking renders; the transition stays pending until the result is ready,
+  // which drives the loading state and stops repeat submissions in the meantime.
+  const [pending, startTransition] = useTransition();
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (pending) return;
     const raw = new FormData(e.currentTarget).get("tracking_id");
     const parsed = trackingIdSchema.safeParse(typeof raw === "string" ? raw : "");
     if (!parsed.success) {
@@ -36,11 +40,11 @@ export function TrackingForm({
       return;
     }
     setError(undefined);
-    router.push(`/tracking?tracking_id=${encodeURIComponent(parsed.data)}`);
+    startTransition(() => router.push(`/tracking?tracking_id=${encodeURIComponent(parsed.data)}`));
   }
 
   return (
-    <form action="/tracking" method="get" noValidate onSubmit={onSubmit}>
+    <form action="/tracking" method="get" noValidate onSubmit={onSubmit} aria-busy={pending}>
       <Field
         id={id}
         label="Shipment / AWB tracking number"
@@ -62,9 +66,9 @@ export function TrackingForm({
             onChange={() => error && setError(undefined)}
             className={inputClass}
           />
-          <Button type="submit">
+          <Button type="submit" disabled={pending} aria-disabled={pending}>
             {!compact && <Package aria-hidden className="size-5" />}
-            {buttonLabel}
+            {pending ? "Tracking…" : buttonLabel}
           </Button>
         </div>
       </Field>

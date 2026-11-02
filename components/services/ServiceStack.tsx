@@ -18,7 +18,8 @@ export function ServiceStack({ services }: { services: Service[] }) {
         <li key={s.slug} style={{ "--i": i } as CSSProperties}>
           <article className="card-stack-card group relative grid overflow-hidden rounded-[28px] border border-line bg-white shadow-[0_24px_60px_-34px_rgb(11_21_51/0.45)] min-[1025px]:h-[min(440px,calc(100svh-180px))] min-[1025px]:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
             <div className="relative aspect-[16/10] overflow-hidden bg-soft min-[1025px]:aspect-auto">
-              <Image src={s.image} alt={s.imageAlt} fill sizes="(min-width: 1025px) 620px, 100vw"
+              {/* The first card can show on load, so its photo is fetched early; the rest load as they come near. */}
+              <Image src={s.image} alt={s.imageAlt} fill preload={i === 0} sizes="(min-width: 1025px) 620px, 100vw"
                 className="object-cover transition-[scale] duration-700 ease-smooth group-hover:scale-[1.03]" />
             </div>
             <Reveal variant="stagger" className="flex flex-col justify-center gap-4 p-6 sm:p-9 min-[1025px]:p-12">

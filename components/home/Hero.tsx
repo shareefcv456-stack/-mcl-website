@@ -1,4 +1,5 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { Globe } from "lucide-react";
 import { ArrowDot, ButtonLink, buttonClass } from "@/components/ui/Button";
 import { QuoteTrigger } from "@/components/quote/QuoteTrigger";
@@ -10,32 +11,20 @@ import { DELIVERED_STAT, HERO_VIDEO, INTRO } from "@/lib/content/home";
 export function Hero() {
   return (
     <section aria-labelledby="hero-title" className="relative isolate flex min-h-[max(720px,100svh)] overflow-hidden bg-[#0d2440] text-white">
-      {/* The still photo: shown at once, and the poster/fallback for real footage. It drifts very slowly sideways. */}
+      {/* The still: the footage's own first frame, shown at once and kept as poster and fallback (reduced motion,
+          Data Saver, or if the video cannot play), so the switch to the moving video is seamless. */}
       <div className="hero-camera absolute inset-0">
         <Image
-          src="/images/hero-ship.png"
+          src="/images/hero-ship7-poster.webp"
           alt="Container ship carrying MCL cargo across open sea"
           fill
           preload
           sizes="100vw"
-          className="hero-backdrop object-cover object-[60%_50%]"
+          className="hero-backdrop object-cover object-[62%_50%]"
         />
-        {/* Ship bob (a temporary enhancement while there is no real footage; it is not real ship movement): the same
-            photo, cut down by a feathered ellipse mask (same proportions, cropped exactly like the photo) to the ship
-            and the water around it, rises and falls a couple of pixels with a hint of pitch. The mask's soft edge lies
-            in open water, so there is no seam or doubled outline. Same file as above, so no extra download. */}
-        <div aria-hidden className="hero-backdrop absolute inset-0">
-          <Image
-            src="/images/hero-ship.png"
-            alt=""
-            fill
-            sizes="100vw"
-            className="hero-ship-bob object-cover object-[60%_50%] [mask-image:url(/images/hero-ship-mask.png)] [mask-position:60%_50%] [mask-repeat:no-repeat] [mask-size:cover]"
-          />
-        </div>
       </div>
-      {/* Real footage, once a clip is listed in HERO_VIDEO (lib/content/home.ts). Until then nothing is rendered here. */}
-      {HERO_VIDEO.length > 0 && <HeroVideo sources={HERO_VIDEO} poster="/images/hero-ship.png" />}
+      {/* Real footage (HERO_VIDEO in lib/content/home.ts), played at 0.65× for a slower, more cinematic pace. */}
+      {HERO_VIDEO.length > 0 && <HeroVideo sources={HERO_VIDEO} poster="/images/hero-ship7-poster.webp" playbackRate={0.65} />}
       {/* Fallback ambience for the still photo (globals.css, "Hero"). It makes the air and water around the ship move;
           the ship itself and the shape of the waves do not, which needs real footage. All transform/opacity; still
           for reduced motion; faded out while real footage is playing. */}
@@ -59,7 +48,7 @@ export function Hero() {
       </div>
       <div
         aria-hidden
-        className="absolute inset-0 bg-[linear-gradient(0deg,rgb(8_18_40/0.85)_0%,rgb(8_18_40/0.4)_55%,rgb(8_18_40/0.55)_100%)] md:bg-[linear-gradient(90deg,rgb(8_18_40/0.72)_0%,rgb(8_18_40/0.35)_45%,rgb(8_18_40/0)_70%),linear-gradient(0deg,rgb(8_18_40/0.7)_0%,rgb(8_18_40/0)_40%)]"
+        className="absolute inset-0 bg-[linear-gradient(0deg,rgb(8_18_40/0.86)_0%,rgb(8_18_40/0.72)_35%,rgb(8_18_40/0.66)_58%,rgb(8_18_40/0.55)_100%)] md:bg-[linear-gradient(90deg,rgb(8_18_40/0.72)_0%,rgb(8_18_40/0.35)_45%,rgb(8_18_40/0)_70%),linear-gradient(0deg,rgb(8_18_40/0.7)_0%,rgb(8_18_40/0)_40%)]"
       />
       <div className="relative z-10 container-site flex flex-col justify-between gap-12 pt-[120px] pb-12 md:pt-[150px]">
         <div>
@@ -87,9 +76,21 @@ export function Hero() {
             <span className="text-[0.8125rem] leading-tight text-[#e7eaf5]">Delivered<br />Goods</span>
           </div>
         </div>
-        <div className="grid items-end gap-8 min-[861px]:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
+        {/* The footage carries Gemini's ✦ watermark near its bottom right, and it stays visible. The video fills the
+            hero (cover, 62% 50%), so on screen the mark (46px wide in the frame, centred 90.6% across) sits at
+            x ≈ 0.62 × width + 0.509 × hero height. On desktop --wm-gap moves the card left only as far as it needs to
+            end ~19px short of the mark (assuming the shortest hero this content allows, ~860px, or the screen if
+            taller, so it is never short); it is 0 wherever the mark is off screen or already clear. The description
+            column gives up that width, so the card keeps its full 440px (any narrower and the field's placeholder is
+            cut off). It also always ends at least 88px from the screen's right edge on tablet and desktop, clear of
+            the fixed WhatsApp button (56px, 20px in) with a 12px gap; whichever needs more room wins. Tablet: a 520px
+            card on the right under the description. Phones: full width, and the field and button stack below 421px. */}
+        <div
+          className="grid items-end gap-8 min-[861px]:grid-cols-[minmax(0,1fr)_minmax(0,calc(440px+var(--wm-gap)))]"
+          style={{ "--wm-gap": "max(0px, calc(38vw - 0.509 * max(860px, 100svh) + 48px - max(clamp(16px, 4vw, 40px), (100vw - 1200px) / 2)), calc(88px - max(clamp(16px, 4vw, 40px), (100vw - 1200px) / 2)))" } as CSSProperties}
+        >
           <p className="m-0 max-w-[52ch] animate-enter text-[#F1F5F9]/80 [animation-delay:380ms]">{INTRO}</p>
-          <div className="animate-enter rounded-3xl bg-white/95 p-6 text-ink shadow-float [animation-delay:440ms]">
+          <div className="animate-enter rounded-3xl bg-white/95 p-6 text-ink shadow-float [animation-delay:440ms] min-[641px]:max-[860px]:w-full min-[641px]:max-[860px]:max-w-[520px] min-[641px]:max-[860px]:justify-self-end min-[641px]:mr-(--wm-gap)">
             <h2 className="mb-1 text-xl tracking-[-0.01em]">Track Your Order</h2>
             <p className="mb-4 text-[0.9375rem] text-muted">Get everything you need to know to track your parcel here.</p>
             <TrackingForm id="hero-tracking-id" compact buttonLabel="Track Order" />

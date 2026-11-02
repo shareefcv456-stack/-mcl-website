@@ -8,6 +8,9 @@ import { FOOTER_EXPLORE, OFFICES, SITE } from "@/lib/content/site";
 import { SERVICES, serviceHref } from "@/lib/content/services";
 
 const linkClass = "text-[#dfe4f2] transition-colors duration-200 ease-smooth hover:text-white";
+// Text links on their own (lists, phone numbers): 8px taller to tap (at least 24px), with the same negative margin
+// so the layout does not move. The list gaps (10px) keep neighbouring tap areas apart.
+const tapLinkClass = `-my-1 inline-block py-1 ${linkClass}`;
 const headingClass = "mb-4 font-sans text-[0.9375rem] tracking-[0.06em] text-white uppercase";
 
 export function Footer() {
@@ -44,14 +47,14 @@ export function Footer() {
           <div>
             <h2 className={headingClass}>Explore</h2>
             <ul className="m-0 grid list-none gap-2.5 p-0">
-              {FOOTER_EXPLORE.map((l) => <li key={l.href}><Link href={l.href} className={linkClass}>{l.label}</Link></li>)}
+              {FOOTER_EXPLORE.map((l) => <li key={l.href}><Link href={l.href} className={tapLinkClass}>{l.label}</Link></li>)}
             </ul>
           </div>
 
           <div>
             <h2 className={headingClass}>Services</h2>
             <ul className="m-0 grid list-none gap-2.5 p-0">
-              {SERVICES.map((s) => <li key={s.slug}><Link href={serviceHref(s.slug)} className={linkClass}>{s.name}</Link></li>)}
+              {SERVICES.map((s) => <li key={s.slug}><Link href={serviceHref(s.slug)} className={tapLinkClass}>{s.name}</Link></li>)}
             </ul>
           </div>
 
@@ -64,7 +67,7 @@ export function Footer() {
                   {o.address}
                   <br />
                   {o.phones.map((p, i) => (
-                    <span key={p.tel}>{i > 0 && ", "}<a href={`tel:${p.tel}`} className={`whitespace-nowrap ${linkClass}`}>{p.label}</a></span>
+                    <span key={p.tel}>{i > 0 && ", "}<a href={`tel:${p.tel}`} className={`whitespace-nowrap ${tapLinkClass}`}>{p.label}</a></span>
                   ))}
                 </address>
               ))}
@@ -73,7 +76,7 @@ export function Footer() {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-4 border-t border-white/10 py-6 text-[0.8125rem]">
-          <span>© Copyright · <a href={SITE.credit.href} rel="noopener" className={linkClass}>{SITE.credit.label}</a></span>
+          <span>© Copyright · <a href={SITE.credit.href} rel="noopener" className={tapLinkClass}>{SITE.credit.label}</a></span>
           <div className="flex gap-2">
             {[
               { href: SITE.instagram, label: "MCL on Instagram", icon: <InstagramIcon className="size-5" /> },

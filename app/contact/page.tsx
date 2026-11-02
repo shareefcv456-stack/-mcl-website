@@ -62,7 +62,7 @@ export default function ContactPage() {
                     <address className="text-[0.9375rem] text-muted not-italic">{o.address}</address>
                     <div className="text-[0.9375rem] font-semibold">
                       {o.phones.map((p, i) => (
-                        <span key={p.tel}>{i > 0 && ", "}<a href={`tel:${p.tel}`} className="whitespace-nowrap">{p.label}</a></span>
+                        <span key={p.tel}>{i > 0 && ", "}<a href={`tel:${p.tel}`} className="-my-1 inline-block py-1 whitespace-nowrap">{p.label}</a></span>
                       ))}
                     </div>
                   </div>
