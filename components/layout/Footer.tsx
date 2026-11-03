@@ -4,8 +4,8 @@ import { Mail, Phone } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { InstagramIcon, WhatsAppIcon } from "@/components/ui/BrandIcons";
 import { NewsletterForm } from "@/components/forms/NewsletterForm";
-import { FOOTER_EXPLORE, OFFICES, SITE } from "@/lib/content/site";
-import { SERVICES, serviceHref } from "@/lib/content/services";
+import { QuoteTrigger } from "@/components/quote/QuoteTrigger";
+import { FOOTER_COMPANY, FOOTER_LEGAL, FOOTER_QUICK, OFFICES, SITE } from "@/lib/content/site";
 
 const linkClass = "text-[#dfe4f2] transition-colors duration-200 ease-smooth hover:text-white";
 // Text links on their own (lists, phone numbers): 8px taller to tap (at least 24px), with the same negative margin
@@ -24,7 +24,7 @@ export function Footer() {
           <ButtonLink href="/contact" variant="white" arrow>Start Booking</ButtonLink>
         </div>
 
-        <div className="grid gap-8 py-12 min-[561px]:grid-cols-2 min-[1025px]:grid-cols-[1.3fr_1fr_1fr_1.4fr]">
+        <div className="grid gap-x-10 gap-y-12 py-14 min-[561px]:grid-cols-2 min-[1025px]:grid-cols-[1.15fr_1.9fr_1.25fr]">
           <div>
             <Image src="/images/logo-mark.png" alt="MCL – Meem Continental Logistics" width={250} height={236}
               className="mb-4 h-[72px] w-auto rounded-[14px] bg-white px-2.5 py-1.5" />
@@ -44,19 +44,29 @@ export function Footer() {
             <NewsletterForm />
           </div>
 
-          <div>
-            <h2 className={headingClass}>Explore</h2>
-            <ul className="m-0 grid list-none gap-2.5 p-0">
-              {FOOTER_EXPLORE.map((l) => <li key={l.href}><Link href={l.href} className={tapLinkClass}>{l.label}</Link></li>)}
-            </ul>
-          </div>
-
-          <div>
-            <h2 className={headingClass}>Services</h2>
-            <ul className="m-0 grid list-none gap-2.5 p-0">
-              {SERVICES.map((s) => <li key={s.slug}><Link href={serviceHref(s.slug)} className={tapLinkClass}>{s.name}</Link></li>)}
-            </ul>
-          </div>
+          {/* Three short link columns: what MCL is, what visitors come to do, and the policies. */}
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-8 min-[561px]:grid-cols-3 min-[561px]:col-span-2 min-[1025px]:col-span-1">
+            <div>
+              <h2 className={headingClass}>Company</h2>
+              <ul className="m-0 grid list-none gap-2.5 p-0">
+                {FOOTER_COMPANY.map((l) => <li key={l.href}><Link href={l.href} className={tapLinkClass}>{l.label}</Link></li>)}
+              </ul>
+            </div>
+            <div>
+              <h2 className={headingClass}>Quick Links</h2>
+              <ul className="m-0 grid list-none gap-2.5 p-0">
+                <li><Link href={FOOTER_QUICK[0].href} className={tapLinkClass}>{FOOTER_QUICK[0].label}</Link></li>
+                <li><QuoteTrigger className={tapLinkClass}>Get a Quote</QuoteTrigger></li>
+                {FOOTER_QUICK.slice(1).map((l) => <li key={l.href}><Link href={l.href} className={tapLinkClass}>{l.label}</Link></li>)}
+              </ul>
+            </div>
+            <div>
+              <h2 className={headingClass}>Legal</h2>
+              <ul className="m-0 grid list-none gap-2.5 p-0">
+                {FOOTER_LEGAL.map((l) => <li key={l.href}><Link href={l.href} className={tapLinkClass}>{l.label}</Link></li>)}
+              </ul>
+            </div>
+          </nav>
 
           <div>
             <h2 className={headingClass}>Offices</h2>

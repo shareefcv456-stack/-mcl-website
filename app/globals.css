@@ -182,12 +182,12 @@
 }
 /* About › Our Network blueprint: each stage lights up for a quarter of a 12s cycle, in order. */
 @keyframes bp-stage {
-  0%, 25% { border-color: rgb(103 232 249 / 0.75); background-color: rgb(14 52 102 / 0.9); }
-  33%, 100% { border-color: rgb(255 255 255 / 0.15); background-color: rgb(6 22 49 / 0.8); }
+  0%, 25% { border-color: rgb(125 211 232 / 0.45); background-color: rgb(16 40 74 / 0.9); }
+  33%, 100% { border-color: rgb(255 255 255 / 0.15); background-color: rgb(10 29 59 / 0.85); }
 }
 @keyframes bp-stage-n {
-  0%, 25% { background-color: rgb(103 232 249); color: #061631; }
-  33%, 100% { background-color: rgb(255 255 255 / 0.1); color: rgb(165 243 252); }
+  0%, 25% { background-color: rgb(125 211 232 / 0.22); color: #ffffff; }
+  33%, 100% { background-color: rgb(255 255 255 / 0.1); color: rgb(226 232 240); }
 }
 @keyframes journey-fill {
   from { scale: 1 0; }
@@ -780,6 +780,8 @@ li[data-step] h3 {
   /* Keep the page behind an open dialog from scrolling; the stable gutter stops the layout jumping. */
   html {
     scrollbar-gutter: stable;
+    /* In-page jumps (#sections, focus) stop below the fixed navigation bar instead of under it. */
+    scroll-padding-top: 104px;
   }
   html:has(dialog[open]) {
     overflow: hidden;

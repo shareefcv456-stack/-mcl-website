@@ -15,25 +15,30 @@ export const SITE = {
     "At MCL, our years of experience, unwavering commitment, and reliability have made us a trusted partner in logistics support.",
 } as const;
 
-/** Main navigation — same items and destinations as the live site ("Support" goes to /contact). */
+/** Main navigation: the five primary pages. Blogs, Careers and Reviews stay reachable from the footer and from links
+ * in the page content (the home testimonials link to /review). */
 export const NAV = [
   { label: "Home", href: "/" },
   { label: "About", href: "/about" },
-  { label: "Tracking", href: "/tracking" },
   { label: "Services", href: "/services" },
-  { label: "Blogs", href: "/blogs" },
-  { label: "Careers", href: "/career" },
-  { label: "Reviews", href: "/review" },
-  { label: "Support", href: "/contact" },
+  { label: "Tracking", href: "/tracking" },
+  { label: "Contact", href: "/contact" },
 ] as const;
 
-export const FOOTER_EXPLORE = [
-  { label: "About Company", href: "/about" },
-  { label: "Latest Services", href: "/services" },
-  { label: "Blog & News", href: "/blogs" },
-  { label: "Contact Us", href: "/contact" },
+/** Footer link columns. "Get a Quote" opens the quote dialog, so the footer renders it as a QuoteTrigger. */
+export const FOOTER_COMPANY = [
+  { label: "About Us", href: "/about" },
+  { label: "Services", href: "/services" },
+  { label: "Contact", href: "/contact" },
+] as const;
+export const FOOTER_QUICK = [
+  { label: "Tracking", href: "/tracking" },
+  { label: "Careers", href: "/career" },
+  { label: "Blogs", href: "/blogs" },
+] as const;
+export const FOOTER_LEGAL = [
   { label: "Privacy Policy", href: "/privacy-policy" },
-  { label: "Terms of Services", href: "/terms-of-service" },
+  { label: "Terms of Service", href: "/terms-of-service" },
   { label: "Refund Policy", href: "/refund-policy" },
   { label: "Shipping Policy", href: "/shipping-policy" },
 ] as const;

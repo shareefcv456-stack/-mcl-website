@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { CSSProperties } from "react";
-import { Globe } from "lucide-react";
 import { ArrowDot, ButtonLink, buttonClass } from "@/components/ui/Button";
 import { QuoteTrigger } from "@/components/quote/QuoteTrigger";
 import { TrackingForm } from "@/components/tracking/TrackingForm";
@@ -52,10 +51,6 @@ export function Hero() {
       />
       <div className="relative z-10 container-site flex flex-col justify-between gap-12 pt-[120px] pb-12 md:pt-[150px]">
         <div>
-          <span className="mb-6 inline-flex animate-enter items-center gap-2 rounded-full border border-white/20 bg-white/10 py-[7px] pr-3.5 pl-2 text-[0.8125rem] font-medium text-[#e7eaf5] backdrop-blur">
-            <span className="grid size-[22px] place-items-center rounded-full bg-brand"><Globe aria-hidden className="size-[13px]" /></span>
-            Welcome to MCL
-          </span>
           <h1 id="hero-title" className="mb-6 max-w-[12ch] font-medium text-white">
             {/* Each word rises in turn (.hero-word in globals.css); the text and line breaks are unchanged. */}
             <span className="hero-word [--i:0]">Your</span> <span className="hero-word [--i:1]">Global</span>{" "}

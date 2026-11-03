@@ -99,11 +99,11 @@ test.describe("navigation", () => {
     await expect(drawer).toBeHidden();
 
     await page.getByRole("button", { name: "Open menu" }).click();
-    await drawer.getByRole("link", { name: "Careers" }).click();
-    await expect(page).toHaveURL(/\/career$/);
+    await drawer.getByRole("link", { name: "Contact" }).click();
+    await expect(page).toHaveURL(/\/contact$/);
     await expect(drawer).toBeHidden();
     await page.getByRole("button", { name: "Open menu" }).click();
-    await expect(drawer.getByRole("link", { name: "Careers" })).toHaveAttribute("aria-current", "page");
+    await expect(drawer.getByRole("link", { name: "Contact" })).toHaveAttribute("aria-current", "page");
   });
 
   test("desktop nav marks the current section, including detail pages", async ({ page }, info) => {
@@ -111,7 +111,8 @@ test.describe("navigation", () => {
     await page.goto("/service/ocean-freight");
     const nav = page.getByRole("navigation", { name: "Main" });
     await expect(nav.getByRole("link", { name: "Services" })).toHaveAttribute("aria-current", "page");
-    await nav.getByRole("link", { name: "Blogs" }).click();
+    // Blogs left the main bar; it is reached from the footer.
+    await page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "Blogs" }).click();
     await expect(page).toHaveURL(/\/blogs$/);
     await page.getByRole("link", { name: /Advantage of Air Cargo/ }).click();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Advantage of Air Cargo Transportation");

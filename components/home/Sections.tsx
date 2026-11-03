@@ -2,18 +2,16 @@ import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, MapPin, Phone } from "lucide-react";
-import { PlaneArt, RouteArtDefs, ShipArt } from "@/components/home/RouteArt";
 import { ArrowDot, ArrowLabel, ButtonLink, buttonClass } from "@/components/ui/Button";
 import { Faq } from "@/components/ui/Faq";
 import { Feature, IconTile, SectionHeading, cardClass } from "@/components/ui/Section";
 import { QuoteTrigger } from "@/components/quote/QuoteTrigger";
-import { ServiceCard } from "@/components/services/ServiceCard";
 import { PostCard } from "@/components/blogs/PostCard";
 import { VolumeCalculator } from "@/components/calculator/VolumeCalculator";
 import {
   ABOUT_SUMMARY, BENEFITS, CATEGORIES, DELIVERED_STAT, FAQS, FAQ_INTRO, PORTFOLIO, PROCESS, TESTIMONIALS, VOLUME_INTRO, WHY_CHOOSE_US,
 } from "@/lib/content/home";
-import { SERVICES } from "@/lib/content/services";
+import { SERVICES, serviceHref } from "@/lib/content/services";
 import { BLOG_POSTS } from "@/lib/content/blogs";
 import { SITE } from "@/lib/content/site";
 import { cn } from "@/lib/utils/cn";
@@ -23,6 +21,7 @@ import { ScrollEntrance } from "@/components/ui/ScrollEntrance";
 import { PauseOffscreen } from "@/components/ui/PauseOffscreen";
 import { FlipCard } from "@/components/ui/FlipCard";
 import { ProcessBadges } from "@/components/home/ProcessBadges";
+import { WorldDots } from "@/components/home/WorldDots";
 import { CountUp } from "@/components/ui/CountUp";
 
 const sectionLink = (href: string, label: string) => (
@@ -72,14 +71,6 @@ export function AboutIntro() {
 /** A decorative shipping route: SVG path, width, dash, lap time (s) and the pin at its end. */
 type Route = { d: string; width: number; dash: string; dur: number; pin: [number, number] };
 
-/** A vehicle that travels one route: its illustration (drawn facing +x, see RouteArt) and where it is parked, and at
- * what angle (the route's direction there), when motion is reduced. `sway` rocks it gently (± degrees) as it goes;
- * `scale` [start, end] grows or shrinks it over the lap (an airliner climbing away); `wake` trails moving foam. */
-type Mover = { Art: () => ReactNode; at: [x: number, y: number, angle: number]; sway?: number; scale?: [number, number]; wake?: boolean };
-
-/** The easing every vehicle and its route highlight share, so the two stay exactly together. */
-const LAP_EASE = { calcMode: "spline", keyTimes: "0;1", keySplines: "0.45 0 0.55 1" } as const;
-
 /** Small arrows travelling a route (SVG animateMotion, so they follow the curve), `phases` apart within a lap. */
 function RouteArrows({ href, dur, phases, opacity }: { href: string; dur: number; phases: number[]; opacity: number }) {
   return phases.map((phase) => (
@@ -93,195 +84,116 @@ function RouteArrows({ href, dur, phases, opacity }: { href: string; dur: number
 }
 
 /**
- * Decorative shipping routes with a pin at each end. Decorative only; all motion is hidden for reduced motion.
- * - Default (Shipment Categories): dotted lines with small arrows travelling along them and pins that pulse as an
- *   arrow arrives.
- * - With `movers` (Our Services, About): each route is a soft periwinkle line with blue dots flowing along it
- *   (.route-flow), a faint arrow showing the direction of travel, static pins, and one vehicle illustration per route
- *   that travels the exact path, turning with it, easing out of the origin and into the destination, and fading out
- *   and back in at the ends so each lap starts cleanly. Reduced motion shows each vehicle parked at its `at` point.
+ * Decorative shipping routes with a pin at each end (Shipment Categories): dotted lines with small arrows travelling
+ * along them and pins that pulse as an arrow arrives. Decorative only; all motion is hidden for reduced motion.
  * `id` must be unique on the page: the animations reference their path by it. `children` draws extra markers on top.
  */
-function RouteLines({ id, routes, movers, viewBox, preserveAspectRatio, className, children }: { id: string; routes: Route[]; movers?: Mover[]; viewBox: string; preserveAspectRatio?: string; className?: string; children?: ReactNode }) {
+function RouteLines({ id, routes, viewBox, preserveAspectRatio, className, children }: { id: string; routes: Route[]; viewBox: string; preserveAspectRatio?: string; className?: string; children?: ReactNode }) {
   return (
     <svg aria-hidden viewBox={viewBox} preserveAspectRatio={preserveAspectRatio} fill="none" className={cn("pointer-events-none overflow-visible", className)}>
-      {movers && <RouteArtDefs />}
-      {routes.map((r, i) => {
-        const mover = movers?.[i];
-        return (
-          <g key={r.d}>
-            {mover ? (
-              <>
-                {/* A soft white glow under each line keeps it crisp over the sea texture. */}
-                <path d={r.d} stroke="#fff" strokeOpacity={0.75} strokeWidth={4} strokeLinecap="round" />
-                <path id={`${id}-${i}`} d={r.d} stroke="var(--color-on-dark-accent)" strokeOpacity={0.75} strokeWidth={1.25} />
-                <path d={r.d} className="route-flow" stroke="var(--color-brand)" strokeOpacity={0.5} strokeWidth={2.2} strokeLinecap="round" strokeDasharray="0.5 8.5" />
-                <g className="motion-reduce:hidden">
-                  {/* The stretch already travelled lights up behind the vehicle: a cyan line drawn from the origin up to
-                      it (pathLength 1, same easing as the vehicle), fading with it at the ends of the lap. */}
-                  <path d={r.d} pathLength={1} stroke="#67e8f9" strokeWidth={2.4} strokeLinecap="round" strokeDasharray="1 1" opacity={0}>
-                    <animate attributeName="stroke-dashoffset" values="1;0" dur={`${r.dur}s`} repeatCount="indefinite" {...LAP_EASE} />
-                    <animate attributeName="opacity" values="0;0.85;0.85;0" keyTimes="0;0.08;0.92;1" dur={`${r.dur}s`} repeatCount="indefinite" />
-                  </path>
-                  {/* Half a lap away from the vehicle, so the two never meet. */}
-                  <RouteArrows href={`#${id}-${i}`} dur={r.dur} phases={[0.5]} opacity={0.55} />
-                  {/* The destination pin sends out one soft ring as the vehicle arrives (the last 12% of its lap). */}
-                  <circle cx={r.pin[0]} cy={r.pin[1]} fill="var(--color-on-dark-accent)">
-                    <animate attributeName="r" values="4;4;16" keyTimes="0;0.88;1" dur={`${r.dur}s`} repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0;0;0.55;0" keyTimes="0;0.88;0.9;1" dur={`${r.dur}s`} repeatCount="indefinite" />
-                  </circle>
-                </g>
-                <g className="motion-reduce:hidden" opacity={0}>
-                  <animateMotion dur={`${r.dur}s`} repeatCount="indefinite" rotate="auto" keyPoints="0;1" {...LAP_EASE}>
-                    <mpath href={`#${id}-${i}`} />
-                  </animateMotion>
-                  <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.08;0.92;1" dur={`${r.dur}s`} repeatCount="indefinite" />
-                  {/* A soft cyan glow travels under the vehicle, lighting the route as it passes. */}
-                  <ellipse rx={30} ry={15} fill="url(#route-art-glow)" />
-                  <g>
-                    {mover.sway && <animateTransform attributeName="transform" type="rotate" values={`${-mover.sway};${mover.sway};${-mover.sway}`} dur="3.4s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.45 0 0.55 1;0.45 0 0.55 1" repeatCount="indefinite" additive="sum" />}
-                    {mover.scale && <animateTransform attributeName="transform" type="scale" values={mover.scale.join(";")} dur={`${r.dur}s`} repeatCount="indefinite" additive="sum" {...LAP_EASE} />}
-                    {/* Foam peeling off both sides of the stern and streaming back (dashes flowing away from the hull). */}
-                    {mover.wake && (
-                      <path d="M-27 -5 Q-40 -10 -58 -14 M-27 5 Q-40 10 -58 14 M-28 0 L-52 0" stroke="#fff" strokeOpacity={0.85} strokeWidth={1.1} strokeLinecap="round" strokeDasharray="3 4">
-                        <animate attributeName="stroke-dashoffset" values="0;-7" dur="0.7s" repeatCount="indefinite" />
-                      </path>
-                    )}
-                    <mover.Art />
-                  </g>
-                </g>
-                <g className="hidden motion-reduce:inline" transform={`translate(${mover.at[0]} ${mover.at[1]}) rotate(${mover.at[2]})`}>
-                  <mover.Art />
-                </g>
-              </>
-            ) : (
-              <>
-                {/* A soft white line under the dashes keeps them readable over a photo. */}
-                <path d={r.d} stroke="#fff" strokeOpacity={0.7} strokeWidth={r.width + 2.6} strokeLinecap="round" />
-                <path id={`${id}-${i}`} d={r.d} stroke="var(--color-brand)" strokeOpacity={0.75} strokeWidth={r.width} strokeDasharray={r.dash} />
-                {/* Two arrows per route, half a lap apart; the pin pulses each time one arrives. */}
-                <g className="motion-reduce:hidden">
-                  <RouteArrows href={`#${id}-${i}`} dur={r.dur} phases={[0, 0.5]} opacity={0.85} />
-                  <circle cx={r.pin[0]} cy={r.pin[1]} fill="var(--color-brand)">
-                    <animate attributeName="r" values="3;14;14" keyTimes="0;0.6;1" dur={`${r.dur / 2}s`} repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.35;0;0" keyTimes="0;0.6;1" dur={`${r.dur / 2}s`} repeatCount="indefinite" />
-                  </circle>
-                </g>
-              </>
-            )}
-            <g className="route-pin">
-              <circle cx={r.pin[0]} cy={r.pin[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
-              <MapPin x={r.pin[0] - 6} y={r.pin[1] - 13} width={12} height={12} className="text-brand" />
-            </g>
+      {routes.map((r, i) => (
+        <g key={r.d}>
+          {/* A soft white line under the dashes keeps them readable over a photo. */}
+          <path d={r.d} stroke="#fff" strokeOpacity={0.7} strokeWidth={r.width + 2.6} strokeLinecap="round" />
+          <path id={`${id}-${i}`} d={r.d} stroke="var(--color-brand)" strokeOpacity={0.75} strokeWidth={r.width} strokeDasharray={r.dash} />
+          {/* Two arrows per route, half a lap apart; the pin pulses each time one arrives. */}
+          <g className="motion-reduce:hidden">
+            <RouteArrows href={`#${id}-${i}`} dur={r.dur} phases={[0, 0.5]} opacity={0.85} />
+            <circle cx={r.pin[0]} cy={r.pin[1]} fill="var(--color-brand)">
+              <animate attributeName="r" values="3;14;14" keyTimes="0;0.6;1" dur={`${r.dur / 2}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.35;0;0" keyTimes="0;0.6;1" dur={`${r.dur / 2}s`} repeatCount="indefinite" />
+            </circle>
           </g>
-        );
-      })}
+          <g className="route-pin">
+            <circle cx={r.pin[0]} cy={r.pin[1] - 7} r={9} fill="#fff" fillOpacity={0.9} />
+            <MapPin x={r.pin[0] - 6} y={r.pin[1] - 13} width={12} height={12} className="text-brand" />
+          </g>
+        </g>
+      ))}
       {children}
     </svg>
   );
 }
 
-// Both routes leave the same origin pin: the airliner flies the upper route, the container ship sails the lower one,
-// at different speeds, each turning to face along its curve. `at` is each route's midpoint and direction there
-// (worked out from the Béziers), where they are parked for reduced motion.
-const SERVICE_ROUTES: Route[] = [
-  { d: "M60 190 C 140 110, 260 40, 400 30", width: 1.2, dash: "4 6", dur: 7, pin: [400, 30] },
-  { d: "M60 190 C 200 150, 360 120, 560 110", width: 1, dash: "3 6", dur: 12, pin: [560, 110] },
-];
-const SERVICE_MOVERS: Mover[] = [
-  // The airliner climbs away from the origin: a little larger at take-off, smaller as it gains height and distance.
-  { Art: PlaneArt, at: [208, 84, -26.6], scale: [1.15, 0.78] },
-  { Art: ShipArt, at: [288, 139, -9.5], sway: 1.6, wake: true },
-];
-
-/** The Our Services route scene (airliner on the upper route, container ship on the lower, both from one origin pin),
- * also shown on About. Pauses while off screen. `id` must be unique on the page. */
-export function RouteScene({ id, className, svgClassName }: { id: string; className?: string; svgClassName?: string }) {
+/** A service as a full-image card: photo, its mode tag, then title, a short excerpt and the link, over a navy shade. */
+function ServiceShowcase({ service: s }: { service: (typeof SERVICES)[number] }) {
+  const Icon = s.icon;
   return (
-    <PauseOffscreen aria-hidden className={cn("pointer-events-none", className)}>
-      <RouteLines id={id} routes={SERVICE_ROUTES} movers={SERVICE_MOVERS} viewBox="0 0 600 220" className={svgClassName}>
-        <circle cx={60} cy={190} r={9} fill="#fff" fillOpacity={0.9} />
-        <MapPin x={54} y={176} width={12} height={12} className="text-brand" />
-      </RouteLines>
-    </PauseOffscreen>
+    <Link href={serviceHref(s.slug)} className="group relative isolate flex h-[380px] flex-col justify-end overflow-hidden rounded-3xl border border-white/12 p-6 text-white shadow-[0_30px_60px_-34px_rgb(0_8_24/0.9)] transition-[translate,border-color] duration-300 ease-smooth hover:-translate-y-1 hover:border-white/30 hover:text-white min-[1025px]:h-[420px]">
+      <Image src={s.image} alt={s.imageAlt} fill sizes="(min-width: 1025px) 25vw, (min-width: 641px) 50vw, 100vw" className="-z-20 object-cover transition-[scale] duration-700 ease-smooth group-hover:scale-[1.05]" />
+      <span aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgb(7_27_58/0.96)_0%,rgb(7_27_58/0.78)_36%,rgb(7_27_58/0.2)_64%,rgb(7_27_58/0.05)_100%)]" />
+      <span className="absolute top-5 left-5 inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/15 px-3 py-1.5 text-[0.8125rem] font-semibold backdrop-blur-md">
+        <Icon aria-hidden className="size-4" strokeWidth={1.8} />{s.tag}
+      </span>
+      <h3 className="m-0 mb-2 text-[1.3125rem] leading-snug tracking-[-0.015em] text-white">{s.name}</h3>
+      <p className="m-0 mb-5 line-clamp-3 text-[0.9375rem] leading-relaxed text-white/80">{s.excerpt}</p>
+      <span className="inline-flex items-center gap-2 text-[0.9375rem] font-semibold text-[#9fd6f7]">
+        Explore service <ArrowRight aria-hidden className="size-4 transition-transform duration-300 ease-smooth group-hover:translate-x-1" />
+      </span>
+    </Link>
   );
 }
 
+/**
+ * Our Services: a deep-ocean section. The site's aerial photo of a container ship sits on the right under a navy shade
+ * that keeps the heading clear, drifting a few pixels against the scroll; four full-image service cards follow. At the
+ * foot, an ocean wave carries the navy down into the white of Shipment Categories, so the two read as one scene.
+ */
 export function ServicesSection() {
   return (
-    <section aria-labelledby="services-title" className="section-y relative isolate overflow-hidden bg-[radial-gradient(50%_45%_at_80%_0%,rgb(44_53_212/0.07),transparent_70%),linear-gradient(180deg,var(--color-soft)_0%,#fff_100%)]">
-      {/* Ocean: an aerial sea texture (cropped from the site's own work1-2.jpg; mirrored so its deep water lies on the
-          right, behind the routes) across the top of the section, under a
-          white veil that keeps the heading bright (strongest on the left behind the text on desktop, even on smaller
-          screens) and fading out at the top edge and well above the cards, which keep their own white surfaces. */}
-      {/* The sea is alive but quiet (all transform/opacity, paused off screen, still for reduced motion): the water
-          drifts very slowly sideways like a current (the hero's camera drift), and on desktop two shimmer layers slide
-          over the deep water on the right with a slow glint of light. While scrolling past, the whole ocean drifts a
-          few pixels against the page (.scroll-depth). Its lower part fades out by mask, so it meets the section's own
-          background with no seam whatever colour that is. */}
-      <PauseOffscreen aria-hidden className="scroll-depth pointer-events-none absolute inset-x-0 top-0 -z-20 h-[620px] overflow-hidden [--depth:12px] [mask-image:linear-gradient(180deg,#000_55%,transparent_96%)] min-[1025px]:h-[560px]">
-        <div className="hero-camera absolute inset-0">
-          <Image src="/images/ocean-texture.jpg" alt="" fill sizes="100vw" quality={75} className="-scale-x-100 object-cover object-[40%_50%]" />
+    <section aria-labelledby="services-title" className="relative isolate overflow-hidden bg-[#071b3a] pt-[clamp(64px,5vw+40px,112px)] pb-[clamp(110px,8vw+70px,190px)] text-white">
+      <PauseOffscreen aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <div className="scroll-depth absolute -inset-y-4 right-0 w-full [--depth:14px] min-[1025px]:w-[70%]">
+          <Image src="/images/work1-2.jpg" alt="" fill sizes="(min-width: 1025px) 70vw, 100vw" className="object-cover object-[65%_35%] opacity-75" />
         </div>
-        <div className="absolute inset-y-0 right-0 hidden w-[62%] overflow-hidden opacity-40 mix-blend-screen [mask-composite:intersect] [mask-image:linear-gradient(90deg,transparent_0%,#000_45%),linear-gradient(180deg,transparent_0%,#000_22%,#000_55%,transparent_85%)] min-[1025px]:block">
-          <div className="hero-swell absolute inset-y-0 -left-[12%] w-[150%] bg-[url(/images/hero-sea-shimmer.jpg)] bg-[length:100%_100%]" />
-          <div className="hero-swell absolute inset-y-0 -left-[12%] w-[150%] bg-[url(/images/hero-sea-shimmer.jpg)] bg-[length:100%_100%] opacity-55 [scale:-1_1]" />
-        </div>
-        <span className="hero-glint absolute top-[18%] left-[45%] hidden h-[30%] w-[38%] bg-[radial-gradient(closest-side,rgb(165_243_252/0.22),transparent)] mix-blend-screen min-[1025px]:block" />
-        {/* Low clouds seen from above, drifting slowly across the sea under the airliner's route, so it reads as flying
-            over them. A few soft, separate banks (not a haze): the water stays clear between them. */}
-        <div className="hero-clouds absolute top-[4%] right-[-8%] h-[58%] w-[72%] bg-[radial-gradient(22%_26%_at_18%_62%,rgb(255_255_255/0.6),transparent_70%),radial-gradient(16%_18%_at_30%_48%,rgb(255_255_255/0.45),transparent_70%),radial-gradient(20%_20%_at_70%_22%,rgb(255_255_255/0.5),transparent_70%),radial-gradient(14%_14%_at_82%_30%,rgb(255_255_255/0.38),transparent_70%),radial-gradient(18%_16%_at_52%_80%,rgb(255_255_255/0.32),transparent_70%)]" />
-        {/* White only where the heading sits: across the top on small screens (the routes below it stay on clear water),
-            and on the left on desktop, gone by the middle so the sea under the routes is at full strength. */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(255_255_255/0.9)_0%,rgb(255_255_255/0.78)_38%,rgb(255_255_255/0.12)_62%,rgb(255_255_255/0)_75%)] min-[1025px]:bg-[linear-gradient(90deg,rgb(255_255_255/0.92)_0%,rgb(255_255_255/0.82)_30%,rgb(255_255_255/0.22)_50%,rgb(255_255_255/0)_64%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,var(--color-soft)_0%,rgb(245_247_251/0)_16%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(7_27_58/0.82)_0%,rgb(7_27_58/0.6)_35%,rgb(7_27_58/0.88)_70%,#071b3a_100%)] min-[1025px]:bg-[linear-gradient(90deg,#071b3a_0%,rgb(7_27_58/0.92)_30%,rgb(7_27_58/0.45)_58%,rgb(7_27_58/0.35)_100%),linear-gradient(0deg,#071b3a_0%,rgb(7_27_58/0)_55%)]" />
+        <span className="absolute top-[-10%] right-[10%] hidden h-[60%] w-[45%] bg-[radial-gradient(closest-side,rgb(85_184_242/0.16),transparent)] min-[1025px]:block" />
       </PauseOffscreen>
-      {/* A soft dotted field behind the routes, fading out toward the heading and the cards. */}
-      <div aria-hidden className="absolute inset-0 -z-10 bg-[radial-gradient(rgb(44_53_212/0.13)_1.1px,transparent_1.4px)] [background-size:14px_14px] [mask-image:radial-gradient(38%_32%_at_72%_18%,#000,transparent)]" />
       <div className="container-site">
-        <SectionHeading id="services-title" eyebrow="Our Services" title="Cargo services across air, sea and land" intro="Flexible freight solutions built around your business."
-          // A soft white pill keeps the link legible where it sits over the sea on desktop.
-          action={<span className="inline-block rounded-full bg-white/85 px-4 py-2 shadow-[0_6px_18px_-10px_rgb(11_21_51/0.35)] backdrop-blur-sm">{sectionLink("/services", "View all services")}</span>} />
-        {/* Desktop: beside the heading, over the sea (positioned against the section). Smaller screens: in the flow
-            between the heading and the cards, scaled to the column. One element either way. */}
-        <RouteScene id="service-route" className="relative -z-10 mx-auto -mt-8 mb-4 max-w-[520px] min-[1025px]:absolute min-[1025px]:top-[56px] min-[1025px]:right-0 min-[1025px]:m-0 min-[1025px]:w-[52%] min-[1025px]:max-w-none" svgClassName="block w-full min-[1025px]:max-w-[680px]" />
-        {/* Each card leans slightly toward the pointer (mouse only; Tilt sits inside the revealed element so the
-            entrance animation and the tilt never fight over the transform). */}
-        <Reveal variant="stagger" data-image="clip" className="grid gap-6 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4">
-          {SERVICES.map((s) => <div key={s.slug}><Tilt max={3} className="h-full"><ServiceCard service={s} showcase /></Tilt></div>)}
+        <Reveal className="mb-12 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-[640px]">
+            <span className="eyebrow text-[#9fd6f7]">Our Services</span>
+            <h2 id="services-title" className="reveal-heading mb-3 text-white">Cargo services across air, sea and land</h2>
+            <p className="m-0 text-[1.0625rem] text-[#c9d6ea]">Flexible freight solutions built around your business.</p>
+          </div>
+          <Link href="/services" className="group inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-5 py-2.5 text-[0.9375rem] font-semibold text-white backdrop-blur-sm transition-colors duration-300 hover:bg-white/20 hover:text-white">
+            View all services <ArrowRight aria-hidden className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
+          </Link>
+        </Reveal>
+        <Reveal variant="stagger" className="grid grid-cols-1 gap-5 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4 min-[1025px]:gap-6">
+          {SERVICES.map((s) => <div key={s.slug}><ServiceShowcase service={s} /></div>)}
         </Reveal>
       </div>
+      {/* The ocean wave into Shipment Categories: a translucent swell over a solid one in that section's white. */}
+      <svg aria-hidden viewBox="0 0 1440 120" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-[clamp(56px,7vw,110px)] w-full">
+        <path d="M0 58 C 220 110, 470 6, 730 38 S 1190 104, 1440 46 V120 H0 Z" fill="#ffffff" fillOpacity="0.22" />
+        <path d="M0 82 C 260 128, 520 30, 770 62 S 1230 118, 1440 74 V120 H0 Z" fill="#ffffff" />
+      </svg>
     </section>
   );
 }
 
-/** Image card that opens the quote dialog pre-filled with its shipment category. */
+/** Category card that opens the quote dialog pre-filled with its shipment category: the photo on top, the icon in a
+ * soft circle over its lower edge, then the title and "Request a Quote" on a white-to-ice card. */
 export function CategoryTile({ category: c, className }: { category: (typeof CATEGORIES)[number]; className?: string }) {
   return (
     <QuoteTrigger
       category={c.title}
       className={cn(
-        "group relative isolate flex h-full min-h-[200px] flex-col justify-between overflow-hidden rounded-[20px] p-3.5 text-white shadow-[0_14px_34px_-20px_rgb(11_21_51/0.55)] ring-1 ring-navy/5 transition-[translate,box-shadow] duration-300 ease-smooth hover:-translate-y-1 hover:text-white hover:shadow-[0_22px_44px_-18px_rgb(44_53_212/0.45)] sm:p-5 min-[641px]:min-h-[220px] min-[1025px]:min-h-0",
+        "group flex h-full flex-col overflow-hidden rounded-[22px] border border-[#e1eaf5] bg-white text-inherit shadow-[0_1px_2px_rgb(11_21_51/0.04),0_16px_36px_-26px_rgb(11_21_51/0.45)] transition-[translate,border-color,box-shadow] duration-300 ease-smooth hover:-translate-y-1 hover:border-[#bcd6ef] hover:text-inherit hover:shadow-[0_24px_48px_-28px_rgb(38_57_232/0.4)]",
         className,
       )}
     >
-      <Image src={c.image} alt="" fill sizes="(min-width: 1025px) 25vw, (min-width: 641px) 33vw, 50vw"
-        className="-z-20 object-cover transition-[scale] duration-700 ease-smooth group-hover:scale-[1.06]" />
-      {/* Navy only where the title sits; the top two-thirds of the photo is left clear. */}
-      <span aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgb(11_21_51/0.84)_0%,rgb(11_21_51/0.5)_30%,rgb(11_21_51/0.12)_52%,rgb(11_21_51/0)_66%)]" />
-      <span aria-hidden className="absolute inset-0 -z-10 bg-[linear-gradient(0deg,rgb(44_53_212/0.28)_0%,rgb(44_53_212/0)_55%)] opacity-0 transition-opacity duration-500 ease-smooth group-hover:opacity-100" />
-      <span className="grid size-10 place-items-center rounded-xl bg-white/95 text-brand shadow-[0_6px_16px_-8px_rgb(11_21_51/0.45)] ring-1 ring-white/60 transition-[background-color,color,scale] duration-300 ease-smooth group-hover:scale-105 group-hover:bg-brand group-hover:text-white sm:size-11">
-        <c.icon aria-hidden className="size-5" strokeWidth={1.8} />
+      <span className="relative block aspect-[16/10] overflow-hidden bg-soft">
+        <Image src={c.image} alt="" fill sizes="(min-width: 1025px) 25vw, 50vw" className="object-cover transition-[scale] duration-700 ease-smooth group-hover:scale-[1.035]" />
       </span>
-      <span className="flex items-end justify-between gap-3">
-        <span>
-          <span className="mb-1.5 block font-display text-base leading-tight font-semibold tracking-[-0.01em] [text-shadow:0_1px_10px_rgb(11_21_51/0.5)] sm:text-lg">{c.title}</span>
-          <span className="inline-flex items-center gap-1 text-[0.8125rem] font-semibold text-[#c9ccff]">
-            Request a Quote <ArrowRight aria-hidden className="size-3.5 transition-transform duration-300 ease-smooth group-hover:translate-x-[3px]" />
-          </span>
+      <span className="relative flex flex-1 flex-col gap-2 bg-[linear-gradient(180deg,#ffffff,#f4f9fe)] px-4 pt-8 pb-4 sm:px-5 sm:pt-9 sm:pb-5">
+        <span className="absolute -top-6 left-4 grid size-12 place-items-center rounded-full bg-[#eaf3fd] text-brand shadow-[0_8px_18px_-10px_rgb(11_21_51/0.45)] ring-4 ring-white transition-[background-color,color] duration-300 ease-smooth group-hover:bg-brand group-hover:text-white sm:left-5">
+          <c.icon aria-hidden className="size-5" strokeWidth={1.8} />
         </span>
-        <span aria-hidden className="hidden size-11 shrink-0 -translate-x-1.5 place-items-center rounded-full bg-brand opacity-0 ring-2 ring-white/80 transition-[opacity,translate] duration-300 ease-smooth group-hover:translate-x-0 group-hover:opacity-100 group-focus-visible:translate-x-0 group-focus-visible:opacity-100 min-[641px]:grid">
-          <ArrowRight className="size-[18px]" />
+        <span className="font-display text-[0.9375rem] leading-snug font-semibold tracking-[-0.01em] text-navy sm:text-[1.0625rem]">{c.title}</span>
+        <span className="mt-auto inline-flex items-center gap-1 pt-1 text-[0.8125rem] font-semibold text-brand">
+          Request a Quote <ArrowRight aria-hidden className="size-3.5 transition-transform duration-300 ease-smooth group-hover:translate-x-[3px]" />
         </span>
       </span>
     </QuoteTrigger>
@@ -314,10 +226,8 @@ const oceanRoute = ({ a, b, bow }: { a: number; b: number; bow: number }) => {
   const len = Math.hypot(x2 - x1, y2 - y1);
   return `M${x1} ${y1} Q ${(x1 + x2) / 2 - ((y2 - y1) / len) * bow} ${(y1 + y2) / 2 + ((x2 - x1) / len) * bow}, ${x2} ${y2}`;
 };
-// Sea-floor contour lines across the lower half, and a globe grid rising from below the bottom edge.
+// Sea-floor contour lines across the lower half.
 const CONTOURS = [560, 630, 700, 770, 840, 910].map((y, i) => `M-120 ${y} C 180 ${y - 34 + i * 6}, 420 ${y + 30}, 720 ${y} S 1240 ${y - 30 + i * 4}, 1560 ${y + 8}`);
-const MERIDIANS = [-4, -3, -2, -1, 0, 1, 2, 3, 4].map((k) => `M${720 + k * 300} 1060 Q ${720 + k * 140} 640, 720 470`);
-const PARALLELS = [[1180, 600], [980, 470], [780, 350]].map(([rx, ry]) => `M${720 - rx} 1060 A ${rx} ${ry} 0 0 1 ${720 + rx} 1060`);
 
 function OceanBackdrop() {
   return (
@@ -325,23 +235,31 @@ function OceanBackdrop() {
       {/* Light: a soft glow behind the ship and a broad, faint band of light drifting across the water. */}
       <span className="absolute -top-[10%] right-[-5%] hidden h-[70%] w-[60%] min-[1025px]:block bg-[radial-gradient(closest-side,rgb(255_255_255/0.85),rgb(214_238_255/0.35)_55%,transparent)]" />
       <span className="cat-light absolute top-[38%] left-[10%] h-[50%] w-[70%] bg-[radial-gradient(closest-side,rgb(165_235_255/0.22),transparent)]" />
+      {/* A dotted world map behind the heading and cards, faint and fading at its edges (tablet and up). Centred with
+          margins, not translate: .scroll-depth animates the translate property and would cancel it. */}
+      <div className="scroll-depth absolute inset-x-0 top-[3%] mx-auto hidden w-[min(1180px,96%)] text-[#7aa8d4] opacity-35 [--depth:10px] [mask-image:radial-gradient(75%_70%_at_40%_40%,#000_50%,transparent)] min-[641px]:block">
+        <WorldDots className="block h-auto w-full" />
+      </div>
       {/* Both pattern layers fade out before the bottom edge, so nothing stops short at the seam with the next section. */}
       <svg viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" className="scroll-depth absolute inset-0 size-full [--depth:18px] [mask-image:linear-gradient(180deg,#000_78%,transparent_94%)]" fill="none">
-        <g className="hidden min-[641px]:inline" stroke="#bfe3ff" strokeOpacity={0.16} strokeWidth={1}>
-          {MERIDIANS.map((d) => <path key={d} d={d} />)}
-          {PARALLELS.map((d) => <path key={d} d={d} />)}
-        </g>
-        <g className="cat-drift hidden min-[641px]:inline" stroke="#ffffff" strokeOpacity={0.1} strokeWidth={1.2}>
+        <g className="cat-drift hidden min-[641px]:inline" stroke="#8db9df" strokeOpacity={0.18} strokeWidth={1.2}>
           {CONTOURS.map((d) => <path key={d} d={d} />)}
         </g>
       </svg>
       <svg viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice" className="scroll-depth absolute inset-0 size-full [--depth:8px] [mask-image:linear-gradient(180deg,#000_78%,transparent_94%)]" fill="none">
         {OCEAN_ROUTES.map((r, i) => (
-          <path key={i} d={oceanRoute(r)} pathLength={1} className={cn("cat-route", r.wide && "max-[640px]:hidden")} style={{ "--i": i } as CSSProperties} stroke="#7fd8ff" strokeOpacity={0.55} strokeWidth={1.4} strokeLinecap="round" />
+          <path key={i} id={`cat-route-${i}`} d={oceanRoute(r)} pathLength={1} className={cn("cat-route", r.wide && "max-[640px]:hidden")} style={{ "--i": i } as CSSProperties} stroke="#6aa8d8" strokeOpacity={0.5} strokeWidth={1.2} strokeLinecap="round" />
         ))}
+        {/* Small location markers travelling some of the routes, each on its own slow clock. */}
+        {OCEAN_ROUTES.map((r, i) => (r.wide ? null : (
+          <circle key={`m${i}`} r={3.2} fill="#ffffff" stroke="var(--color-brand)" strokeOpacity={0.6} strokeWidth={1.2} className="motion-reduce:hidden" opacity={0}>
+            <animateMotion dur={`${9 + i * 1.5}s`} begin={`${1.5 + i}s`} repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.45 0 0.55 1" keyPoints="0;1"><mpath href={`#cat-route-${i}`} /></animateMotion>
+            <animate attributeName="opacity" values="0;0.9;0.9;0" keyTimes="0;0.12;0.88;1" dur={`${9 + i * 1.5}s`} begin={`${1.5 + i}s`} repeatCount="indefinite" />
+          </circle>
+        )))}
         {OCEAN_NODES.map(([x, y], i) => (
           <g key={i} className={cn(i > 5 && "max-[640px]:hidden")}>
-            <circle cx={x} cy={y} r={9} className="net-node" style={{ "--i": i * 0.6 } as CSSProperties} stroke="#7fe3ff" strokeOpacity={0.7} />
+            <circle cx={x} cy={y} r={8} className="net-node" style={{ "--i": i * 0.6 } as CSSProperties} stroke="#6aa8d8" strokeOpacity={0.55} />
             <circle cx={x} cy={y} r={3.2} fill="#ffffff" stroke="#2c35d4" strokeOpacity={0.5} strokeWidth={1} />
           </g>
         ))}
@@ -352,9 +270,9 @@ function OceanBackdrop() {
 
 export function CategoriesSection() {
   return (
-    // From white at the top (Our Services ends in white) through ice blue into deep ocean, ending in the navy the Working
-    // Process section below starts with, so both edges are seamless.
-    <section aria-labelledby="categories-title" className="section-y relative isolate overflow-x-clip bg-[linear-gradient(180deg,#ffffff_0%,#f1f8fe_14%,#d9ecfa_34%,#7fb3df_56%,#245a94_76%,#0b1533_95%)]">
+    // White with an ice-blue tint, starting in the same white Our Services ends in, so the two read as one surface. The
+    // top padding is short: Our Services' own bottom padding already separates them.
+    <section aria-labelledby="categories-title" className="relative isolate overflow-x-clip bg-[linear-gradient(180deg,#ffffff_0%,#f6fafe_30%,#eef5fc_70%,#e7f1fb_100%)] pt-[clamp(32px,2.5vw+16px,56px)] pb-[clamp(64px,5vw+40px,112px)]">
       <OceanBackdrop />
       <div className="container-site">
         <SectionHeading id="categories-title" eyebrow="What we ship" title="Shipment categories" intro="Select a category to request a quote." />
@@ -392,7 +310,7 @@ export function CategoriesSection() {
           </div>
         </PauseOffscreen>
         {/* Cards fade up in a stagger as they enter, each picture settling from a slight zoom. */}
-        <Reveal as="ul" variant="stagger" className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:gap-4 min-[641px]:grid-cols-3 min-[1025px]:auto-rows-[212px] min-[1025px]:grid-cols-4 min-[1025px]:gap-5">
+        <Reveal as="ul" variant="stagger" className="m-0 grid list-none grid-cols-2 gap-3 p-0 sm:gap-5 min-[1025px]:grid-cols-4 min-[1025px]:gap-6">
           {CATEGORIES.map((c) => (
             <li key={c.title}><Tilt max={3} className="h-full"><CategoryTile category={c} /></Tilt></li>
           ))}

@@ -48,18 +48,10 @@ export function AboutHero() {
       <div className="hero-camera absolute inset-0">
         <Image src="/images/about-ship.jpg" alt="Loaded container ship under way on open sea" fill preload sizes="100vw" className="hero-backdrop object-cover object-[70%_60%] min-[861px]:object-[60%_55%]" />
       </div>
-      {/* Ambience for the still photo (there is no licensed footage yet): its own clouds drift across the sky, two
-          ripple layers slide over the water and a glint passes. The ship itself does not move; that needs footage.
-          All transform/opacity, paused off screen, still for reduced motion. */}
+      {/* The scene is the one photograph: no texture or sky layers over it, since those overlapped the ship (a sea
+          ripple texture lay over its hull and a copy of the sky over its bridge). Only the distant airliner and the
+          faint air links move, both in clear sky. Paused off screen, still for reduced motion. */}
       <PauseOffscreen aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-x-0 top-0 h-[34%] overflow-hidden opacity-60 mix-blend-screen [mask-image:linear-gradient(180deg,#000_45%,transparent_100%)]">
-          <div className="hero-clouds absolute inset-y-0 -left-[15%] w-[130%] bg-[url(/images/sky-clouds.webp)] bg-cover bg-center" />
-        </div>
-        <div className="absolute inset-x-0 bottom-0 h-[42%] overflow-hidden opacity-60 mix-blend-screen [mask-image:linear-gradient(180deg,transparent_0%,#000_45%)]">
-          <div className="hero-swell absolute inset-y-0 -left-[12%] w-[150%] bg-[url(/images/hero-sea-shimmer.jpg)] bg-[length:100%_100%]" />
-          <div className="hero-swell absolute inset-y-0 -left-[12%] w-[150%] bg-[url(/images/hero-sea-shimmer.jpg)] bg-[length:100%_100%] opacity-55 [scale:-1_1]" />
-        </div>
-        <span className="hero-glint absolute bottom-[8%] left-[30%] h-[24%] w-[40%] bg-[radial-gradient(closest-side,rgb(85_184_242/0.16),transparent)] mix-blend-screen" />
         {/* The airliner crosses the sky on its own slow course; with reduced motion it simply holds its place. */}
         <div className="absolute top-[13%] left-[52%] min-[861px]:top-[16%]">
           <div className="about-plane">
