@@ -20,7 +20,7 @@ export const DELIVERED_STAT = { value: "1000+", label: "Delivered Goods" };
  * The current hero photo stays as poster and fallback. See components/home/HeroVideo.tsx.
  */
 export const HERO_VIDEO: { src: string; type: "video/mp4" | "video/webm"; media?: string }[] = [
-  { src: "/ship7.mp4", type: "video/mp4" },
+  { src: "/ship7_gwr_video_mvp.mp4", type: "video/mp4" },
 ];
 
 export const BENEFITS = [
